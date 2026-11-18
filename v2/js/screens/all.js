@@ -18,11 +18,26 @@ const lid = l => 'l-' + (l === '#' ? 'x' : l);
 export function abcList() {
   const g = groups();
   return `<div class="abc">${[...g.keys()].map(l => `<button type="button" data-l="${l}">${l}</button>`).join('')}</div>
-    <div class="list abclist">${[...g].map(([l, hs]) => `<h4 class="letter" id="${lid(l)}">${l}</h4>${hs.map(h => herbCard(h)).join('')}`).join('')}</div>`;
+    <div class="list abclist">${[...g].map(([l, hs]) => `<h4 class="letter" id="${lid(l)}">${l}</h4>${hs.map(h => herbCard(h)).join('')}`).join('')}</div>
+    <button type="button" class="totop" aria-label="חזרה לראש הדף">${icon('up')}</button>`;
 }
 export function bindAbc(el) {
   bindList($('.abclist', el));
-  $('.abc', el).onclick = e => { const b = e.target.closest('[data-l]'); if (b) document.getElementById(lid(b.dataset.l)).scrollIntoView({ block: 'start' }); };
+  const top = $('.totop', el);
+  let jumped = false;
+  // הכפתור מופיע אחרי גלילה קצת למטה או קפיצה לאות, ונעלם בראש הדף
+  const upd = () => {
+    if (!top.isConnected) return removeEventListener('scroll', upd);
+    if (scrollY < 40) jumped = false;
+    top.classList.toggle('on', jumped || scrollY > 400);
+  };
+  addEventListener('scroll', upd, { passive: true });
+  top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+  $('.abc', el).onclick = e => {
+    const b = e.target.closest('[data-l]'); if (!b) return;
+    document.getElementById(lid(b.dataset.l)).scrollIntoView({ block: 'start' });
+    jumped = scrollY >= 40; upd();
+  };
 }
 
 export function render(el) {

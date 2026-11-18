@@ -1,5 +1,5 @@
 // גרסת המטמון של v2: להעלות את המספר בכל שינוי בדף, בקוד או בנתונים
-const CACHE = 'herbs2-v14';
+const CACHE = 'herbs2-v15';
 const FILES = ['./', 'index.html', 'app.css', 'manifest.webmanifest',
   'js/app.js', 'js/router.js', 'js/store.js', 'js/search.js', 'js/ui.js',
   'js/screens/home.js', 'js/screens/results.js', 'js/screens/herb.js', 'js/screens/favorites.js',

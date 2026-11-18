@@ -60,7 +60,8 @@ export const favs = {
 };
 export const recent = {
   list: () => read('recent', []),
-  add(id) { const a = read('recent', []).filter(x => x !== id); a.unshift(id); write('recent', a.slice(0, 12)); },
+  add(id) { const a = read('recent', []).filter(x => x !== id); a.unshift(id); write('recent', a.slice(0, 3)); },
+  clear: () => write('recent', []),
 };
 export const learned = {
   has: id => read('learned', []).includes(id),

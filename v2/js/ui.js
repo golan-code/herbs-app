@@ -12,6 +12,7 @@ const P = {
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   back: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   go: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  up: '<path d="M12 19V5M6 11l6-6 6 6"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   leaf: '<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19l8-8"/>',

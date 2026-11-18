@@ -36,13 +36,13 @@ function greeting() {
 
 export function render(el) {
   let mode = prefs.get('tab', 'name');
-  const rec = recent.list().map(herb).filter(Boolean).slice(0, 8);
+  const rec = recent.list().map(herb).filter(Boolean).slice(0, 3);
   el.innerHTML = `
   <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1>${trialNote()}</div><span class="pill">${store.herbs.length} צמחים</span></header>
   <div id="tabs">${tabsHtml(mode)}</div>
   <div id="sb">${searchBar(mode)}</div>
   <div class="prow">${PARTS.map(p => `<a href="#/results?part=${encodeURIComponent(p)}">${icon(PART_ICON[p])}<span>${E(p)}</span></a>`).join('')}</div>
-  ${rec.length ? `<div class="chiprow recent"><small>אחרונים:</small>${rec.map(h => `<a href="#/herb/${h.id}">${E(h.n)}</a>`).join('')}</div>` : ''}
+  ${rec.length ? `<div class="chiprow recent"><small>אחרונים:</small>${rec.map(h => `<a href="#/herb/${h.id}" dir="auto">${E(h.n.trim() || h.latin)}</a>`).join('')}<button type="button" class="rclr">נקה</button></div>` : ''}
   ${badList().length ? `<a class="lesson-l" href="#/badphotos">${icon('warn')} ${badList().length} תמונות סומנו כשגויות · לרשימה</a>` : ''}
   <h2 class="count">כל הצמחים <span class="sub">לפי א-ב</span></h2>
   ${abcList()}
@@ -62,4 +62,6 @@ export function render(el) {
   };
   bind();
   bindAbc(el);
+  const rc = $('.rclr', el);
+  if (rc) rc.onclick = () => { recent.clear(); rc.parentElement.remove(); };
 }

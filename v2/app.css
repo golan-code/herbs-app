@@ -230,6 +230,8 @@ nav a.on{color:var(--green);font-weight:600}
 .allbtn .i{width:26px;height:26px}
 .abc{position:sticky;top:0;z-index:5;display:flex;gap:4px;padding:8px 2px;margin:0 -2px 6px;background:var(--bg);overflow-x:auto;scrollbar-width:none}.abc::-webkit-scrollbar{display:none}
 .abc button{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:var(--surface);box-shadow:0 2px 6px rgba(40,60,50,.08);font:700 15px var(--serif);color:var(--green)}
+.totop{position:fixed;z-index:9;left:max(16px,calc(50% - 264px));bottom:calc(84px + env(safe-area-inset-bottom));width:44px;height:44px;border:0;border-radius:50%;background:var(--surface);color:var(--green);box-shadow:var(--sh);display:grid;place-items:center;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s,transform .2s,visibility .2s}
+.totop.on{opacity:1;visibility:visible;transform:none}
 .letter{font:700 22px var(--serif);color:var(--mustard-ink);margin:10px 0 -2px;scroll-margin-top:60px}
 .daily-s{display:flex;align-items:center;gap:12px;margin-top:18px;background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:var(--sh)}
 .daily-s>span:not(.th){flex:1;min-width:0}.daily-s small{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--green)}.daily-s small .i{width:15px;height:15px}
@@ -239,7 +241,8 @@ nav a.on{color:var(--green);font-weight:600}
 .prow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -18px 0;padding:2px 18px 6px}.prow::-webkit-scrollbar{display:none}
 .prow a{flex:none;display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:99px;padding:7px 14px 7px 12px;font-size:13.5px;color:var(--green);box-shadow:0 2px 8px rgba(40,60,50,.08)}
 .prow .i{width:18px;height:18px}
-.recent{margin-top:10px;align-items:center}.recent small{color:var(--mute);font-size:12.5px}.recent a{padding:4px 12px;font-size:13px}
+.recent{margin-top:10px;align-items:center;flex-wrap:nowrap}.recent small{flex:none;color:var(--mute);font-size:12.5px}.recent a{padding:4px 12px;font-size:13px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rclr{flex:none;margin-inline-start:auto;border:0;background:none;padding:4px 2px;color:var(--mute);font-size:12.5px;text-decoration:underline}
 h2 .sub{font:400 14px var(--sans);color:var(--mute)}
 .badph{display:inline-flex;align-items:center;gap:5px;margin-top:8px;border:0;background:none;color:var(--bad);font-size:13px;font-weight:600;text-decoration:underline}
 .badph .i{width:16px;height:16px}
