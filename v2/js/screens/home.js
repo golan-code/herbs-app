@@ -39,52 +39,21 @@ export function render(el) {
   const rec = recent.list().map(herb).filter(Boolean).slice(0, 3);
   el.innerHTML = `
   <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1>${trialNote()}</div><span class="pill">${store.herbs.length} צמחים</span></header>
-  <div class="swipe"><div id="tabs">${tabsHtml(mode)}</div>
-  <div id="sb">${searchBar(mode)}</div></div>
+  <div id="tabs">${tabsHtml(mode)}</div>
+  <div id="sb">${searchBar(mode)}</div>
   <div class="prow">${PARTS.map(p => `<a href="#/results?part=${encodeURIComponent(p)}">${icon(PART_ICON[p])}<span>${E(p)}</span></a>`).join('')}</div>
   ${rec.length ? `<div class="chiprow recent"><small>אחרונים:</small>${rec.map(h => `<a href="#/herb/${h.id}" dir="auto">${E(h.n.trim() || h.latin)}</a>`).join('')}<button type="button" class="rclr">נקה</button></div>` : ''}
   ${badList().length ? `<a class="lesson-l" href="#/badphotos">${icon('warn')} ${badList().length} תמונות סומנו כשגויות · לרשימה</a>` : ''}
   <h2 class="count">כל הצמחים <span class="sub">לפי א-ב</span></h2>
   ${abcList()}
   `;
-  // מעבר בין הלשוניות: החלקה ימינה/שמאלה על אזור הלשוניות והחיפוש (וגם לחיצה)
-  const setMode = (m, dir = 0) => {
-    if (m === mode) return;
-    mode = m; prefs.set('tab', mode);
-    $('#tabs', el).querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
-    const v = $('input', el).value;
-    $('#sb', el).innerHTML = searchBar(mode, v); bind();
-    if (dir) $('.sbar', el).classList.add(dir > 0 ? 'in-r' : 'in-l');
-  };
-  const sw = $('.swipe', el);
-  // ההחלטה נעשית כבר בזמן התנועה: באייפון, ברגע שהדף מתחיל לגלול מגיע touchcancel ולא touchend
-  let sx = null, sy = 0, horiz = false;
-  sw.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) { sx = null; return; }
-    sx = e.touches[0].clientX; sy = e.touches[0].clientY; horiz = false;
-  }, { passive: true });
-  sw.addEventListener('touchmove', e => {
-    if (sx === null) return;
-    const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-    if (!horiz) {
-      if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { sx = null; return; } // גלילה רגילה למעלה/למטה
-      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) horiz = true;
-    }
-    if (!horiz) return;
-    if (e.cancelable) e.preventDefault(); // תנועה לצדדים: לא לגלול את הדף
-    if (Math.abs(dx) < 35) return;
-    sx = null;
-    // עברית: הלשונית הבאה נמצאת משמאל, לכן החלקה ימינה מביאה אותה
-    const i = TABS.findIndex(t => t[0] === mode) + (dx > 0 ? 1 : -1);
-    if (i >= 0 && i < TABS.length) setMode(TABS[i][0], dx > 0 ? 1 : -1);
-  }, { passive: false });
-  const end = () => { sx = null; };
-  sw.addEventListener('touchend', end, { passive: true });
-  sw.addEventListener('touchcancel', end, { passive: true });
-  $('#tabs', el).onclick = e => {
-    const b = e.target.closest('[data-m]'); if (b) setMode(b.dataset.m);
-  };
   const bind = () => {
+    $('#tabs', el).onclick = e => {
+      const b = e.target.closest('[data-m]'); if (!b) return;
+      mode = b.dataset.m; prefs.set('tab', mode);
+      const v = $('input', el).value;
+      $('#tabs', el).innerHTML = tabsHtml(mode); $('#sb', el).innerHTML = searchBar(mode, v); bind();
+    };
     $('form', el).onsubmit = e => {
       e.preventDefault(); const v = $('input', el).value.trim();
       if (!v && mode === 'tcm') return go('tcm');
