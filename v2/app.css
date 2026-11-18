@@ -30,6 +30,8 @@ h4{font-size:13px;color:var(--mute);margin:14px 0 6px;font-weight:600}
 .hhead small{color:var(--mute);font-size:13px}
 .hhead h1{margin:0;font:700 32px/1.15 var(--serif);color:var(--ink)}
 .pill{background:#dfe6dd;color:var(--green);border-radius:99px;padding:5px 12px;font-size:13px;margin-top:10px;white-space:nowrap}
+.hside{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.pill.adm{margin-top:0;background:var(--green);color:#fff;text-decoration:none;font-weight:600}
 .tabs{display:flex;justify-content:center;gap:26px;margin:18px 0 12px}
 .tabs button{border:0;background:none;font-size:15px;color:var(--mute);padding:4px 0;border-bottom:2px solid transparent}
 .tabs button.on{color:var(--mustard-ink);font-weight:600;border-color:var(--mustard)}

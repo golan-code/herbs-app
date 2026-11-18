@@ -144,9 +144,13 @@ async function onAction(e) {
       case 'reset':
         if (!confirm(`לאפס את "${d.name}"? המכשיר הבא שיפתח את הקישור יקבל את הגישה, ומונה המעברים יתאפס.`)) return;
         await F.updateDoc(ref, { deviceUid: null, claimedAt: null, moves: 0 }); break;
-      case 'del':
-        if (!confirm(`למחוק את הקוד של "${d.name}"? הקישור יפסיק לעבוד, ואי אפשר לבטל את זה.`)) return;
+      case 'del': {
+        // הקלדת השם מוודאת שמוחקים את הכרטיס הנכון (אחרי מחיקה הכרטיסים זזים, וקל ללחוץ על הלא נכון)
+        const v = prompt(`מחיקת הקוד של "${d.name}". הקישור יפסיק לעבוד, ואי אפשר לבטל את זה.\nכדי לאשר, הקלד את השם: ${d.name}`);
+        if (v == null) return;
+        if (v.trim() !== d.name.trim()) { alert('השם לא תואם. לא נמחק כלום.'); return; }
         await F.deleteDoc(ref); break;
+      }
     }
   } catch (err) { alert('הפעולה נכשלה: ' + (err.code || err.message)); }
 }

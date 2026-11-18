@@ -5,6 +5,10 @@ import { go } from '../router.js';
 import { abcList, bindAbc } from './all.js';
 import { badList } from '../commons.js';
 import { trial } from '../access.js';
+import { auth, isGoogle } from '../firebase.js';
+
+// כפתור לדף ניהול הגישה: רק למנהל (מחובר עם Google). ההגנה האמיתית בכללי האבטחה.
+const adminLink = () => isGoogle(auth.currentUser) ? '<a class="pill adm" href="admin.html">ניהול גישה</a>' : '';
 
 // למשתמשי ניסיון: כמה זמן נשאר (מנהל לא רואה)
 function trialNote() {
@@ -38,7 +42,7 @@ export function render(el) {
   let mode = prefs.get('tab', 'name');
   const rec = recent.list().map(herb).filter(Boolean).slice(0, 3);
   el.innerHTML = `
-  <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1>${trialNote()}</div><span class="pill">${store.herbs.length} צמחים</span></header>
+  <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1>${trialNote()}</div><div class="hside"><span class="pill">${store.herbs.length} צמחים</span>${adminLink()}</div></header>
   <div id="tabs">${tabsHtml(mode)}</div>
   <div id="sb">${searchBar(mode)}</div>
   <div class="prow">${PARTS.map(p => `<a href="#/results?part=${encodeURIComponent(p)}">${icon(PART_ICON[p])}<span>${E(p)}</span></a>`).join('')}</div>
