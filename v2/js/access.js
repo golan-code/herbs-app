@@ -63,8 +63,11 @@ export async function gate() {
   let user = await ready();
 
   if (isGoogle(user)) {
-    // מנהל שפותח קישור של מישהו: לא שומרים את הקוד, כדי שלא ייתפס אם המנהל יתנתק בדפדפן הזה
-    store.clear(); setUrlCode(null);
+    // מנהל שפותח קישור של מישהו: לא שומרים את הקוד, כדי שלא ייתפס אם המנהל יתנתק בדפדפן הזה.
+    // באייפון הקוד נשאר בכתובת, כדי ש"הוסף למסך הבית" ישמור אותו: האפליקציה במסך הבית לא מחוברת כמנהל וצריכה את הקוד.
+    store.clear();
+    const urlCode = (new URL(location.href).searchParams.get('invite') || '').trim();
+    if (IOS_SAFARI && urlCode) iosKeepCode(urlCode); else setUrlCode(null);
     try { return await loadContent(); }
     catch (e) { if (e.code === 'permission-denied') throw blocked('notadmin'); throw e; }
   }
