@@ -1,9 +1,9 @@
 // גרסת המטמון של v2: להעלות את המספר בכל שינוי בדף, בקוד או בנתונים
-const CACHE = 'herbs2-v7';
+const CACHE = 'herbs2-v8';
 const FILES = ['./', 'index.html', 'app.css', 'manifest.webmanifest',
   'js/app.js', 'js/router.js', 'js/store.js', 'js/search.js', 'js/ui.js',
   'js/screens/home.js', 'js/screens/results.js', 'js/screens/herb.js', 'js/screens/favorites.js',
-  'js/screens/tcm.js', 'js/screens/search.js', 'js/screens/filters.js', 'js/screens/lesson.js', 'js/screens/all.js', 'js/commons.js',
+  'js/screens/tcm.js', 'js/screens/search.js', 'js/screens/filters.js', 'js/screens/lesson.js', 'js/screens/all.js', 'js/commons.js', 'js/screens/badphotos.js',
   'data/images.json', 'data/lessons.json',
   'fonts/heebo-hebrew.woff2', 'fonts/heebo-latin.woff2',
   '../herbs-data.json', '../fonts/frank-hebrew.woff2', '../fonts/frank-latin.woff2',

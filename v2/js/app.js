@@ -13,6 +13,7 @@ import * as tcm from './screens/tcm.js';
 import * as search from './screens/search.js';
 import * as lesson from './screens/lesson.js';
 import * as all from './screens/all.js';
+import * as badphotos from './screens/badphotos.js';
 
 const ROUTES = [
   ['', home],
@@ -23,6 +24,7 @@ const ROUTES = [
   ['search', search],
   ['lesson', lesson],
   ['all', all],
+  ['badphotos', badphotos],
 ];
 const NAV = [
   ['', 'בית', 'home'],

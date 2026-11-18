@@ -3,6 +3,7 @@ import { PARTS, dailyHerb } from '../search.js';
 import { E, $, icon, thumb, PART_ICON } from '../ui.js';
 import { go } from '../router.js';
 import { abcList, bindAbc } from './all.js';
+import { badList } from '../commons.js';
 
 export const TABS = [
   ['name', 'צמח', 'חיפוש צמח…'],
@@ -35,6 +36,7 @@ export function render(el) {
   <a class="daily-s" href="#/lesson">${thumb(d, 'th sm')}<span><small>${icon('book')} הצמח היומי${learned.has(d.id) ? ' · נלמד ✓' : ''}</small><b>${E(d.n)}</b></span><em>לשיעור</em></a>
   <div class="prow">${PARTS.map(p => `<a href="#/results?part=${encodeURIComponent(p)}">${icon(PART_ICON[p])}<span>${E(p)}</span></a>`).join('')}</div>
   ${rec.length ? `<div class="chiprow recent"><small>אחרונים:</small>${rec.map(h => `<a href="#/herb/${h.id}">${E(h.n)}</a>`).join('')}</div>` : ''}
+  ${badList().length ? `<a class="lesson-l" href="#/badphotos">${icon('warn')} ${badList().length} תמונות סומנו כשגויות · לרשימה</a>` : ''}
   <h2 class="count">כל הצמחים <span class="sub">לפי א-ב</span></h2>
   ${abcList()}
   `;

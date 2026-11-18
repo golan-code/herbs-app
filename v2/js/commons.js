@@ -3,7 +3,7 @@
 // רק תמונות ברישיון חופשי (ברירת המחדל של pageimages ובדיקת רישיון ב-Commons).
 import { store } from './store.js';
 
-const KEY = 'herbs2:commons', TTL = 30 * 864e5, W = 640;
+const KEY = 'herbs2:commons2', TTL = 30 * 864e5, W = 640;
 const API = 'https://en.wikipedia.org/w/api.php', CAPI = 'https://commons.wikimedia.org/w/api.php';
 let cache = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } })();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(cache)); } catch {} };
@@ -13,7 +13,7 @@ export function latinNames(lat) {
   const base = lat.split(' · ')[0].replace(/\b(radix|folia|herba|cortex|fructus|semen|spp\.?)\b/gi, '');
   const words = base.match(/[A-Za-z][a-z-]+/g) || [];
   const gen = words.filter(w => /^[A-Z]/.test(w)), ep = words.filter(w => /^[a-z]/.test(w));
-  return [...new Set([...gen.flatMap(g => ep.map(e => `${g} ${e}`)), ...gen.slice(0, 1)])];
+  return [...new Set(gen.flatMap(g => ep.map(e => `${g} ${e}`)))]; // רק שם מין מלא, לא סוג בלבד (שם הסוג הביא צמחים אחרים)
 }
 
 const q = async (url, params) => {
@@ -27,7 +27,7 @@ export async function loadLeadPhotos(onDone) {
   if (cache._t && Date.now() - cache._t < TTL) return;
   const todo = store.herbs.filter(h => !store.images[h.id]?.length);
   const res = {};
-  for (let round = 0; round < 3; round++) {
+  for (let round = 0; round < 2; round++) {
     const ask = new Map(); // שם → מזהי צמחים
     for (const h of todo) if (!res[h.id]) { const n = latinNames(h.lat)[round]; if (n) ask.set(n, [...(ask.get(n) || []), h.id]); }
     const names = [...ask.keys()];
@@ -45,6 +45,7 @@ export async function loadLeadPhotos(onDone) {
 
 // עוד תמונות לצמח אחד (עד 3 סך הכול), נטען כשפותחים את הבועה או את עמוד הצמח
 export async function morePhotos(h) {
+  return null; // כבוי: החיפוש ב-Commons הביא הרבה תמונות שגויות. נשארת רק התמונה הראשית מוויקיפדיה
   const cur = cache[h.id] || [];
   if (store.images[h.id]?.length || cur.length >= 3 || cache['more:' + h.id]) return null;
   const name = latinNames(h.lat)[0]; if (!name) return null;
@@ -68,4 +69,8 @@ export async function morePhotos(h) {
   } catch { return null; }
 }
 
-export const autoPhotos = h => cache[h.id] || [];
+// תמונות שסומנו כשגויות: לא מוצגות יותר, ונאספות לרשימה שאפשר להעתיק ולשלוח
+const BAD = 'herbs2:badphotos';
+export const badList = () => { try { return JSON.parse(localStorage.getItem(BAD)) || []; } catch { return []; } };
+export function markBad(h, page) { const a = badList().filter(x => x.page !== page); a.push({ id: h.id, n: h.n, lat: h.latin, page }); try { localStorage.setItem(BAD, JSON.stringify(a)); } catch {} }
+export const autoPhotos = h => { const bad = new Set(badList().map(x => x.page)); return (cache[h.id] || []).filter(p => !bad.has(p.page)); };

@@ -1,6 +1,6 @@
 // רכיבי ממשק משותפים: אייקונים, חלונית תחתונה, בועת תמונה, כרטיס צמח.
 import { favs, photos } from './store.js';
-import { morePhotos } from './commons.js';
+import { morePhotos, markBad, badList } from './commons.js';
 
 export const E = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' }[c]));
 export const $ = (s, r = document) => r.querySelector(s);
@@ -72,6 +72,8 @@ export function bubble(h, again) {
     <div class="slides">${slides}</div>
     ${ph.length > 1 ? `<div class="dots">${ph.map((_, k) => `<i class="${k ? '' : 'on'}"></i>`).join('')}</div>` : ''}
     <b>${E(h.n)}</b><small dir="ltr">${E(h.latin)}</small>
+    ${ph.some(p => p.auto) ? `<button type="button" class="badph">${icon('warn')} התמונה לא של הצמח הזה</button>` : ''}
+    ${badList().length ? `<a class="badlink" href="#/badphotos">${badList().length} תמונות סומנו · לרשימה</a>` : ''}
     <div class="bact"><button type="button" class="fav ${favs.has(h.id) ? 'on' : ''}" aria-label="מועדפים">${icon('heart')}</button>
     <a class="btn" href="#/herb/${h.id}">לעמוד הצמח</a></div></section>`;
   document.body.appendChild(el);
@@ -80,6 +82,11 @@ export function bubble(h, again) {
   sl.addEventListener('scroll', () => { const k = Math.round(Math.abs(sl.scrollLeft) / sl.clientWidth); dots.forEach((d, j) => d.classList.toggle('on', j === k)); });
   el.addEventListener('click', e => {
     if (e.target.closest('.dim,.x,.btn')) return closeLayers();
+    if (e.target.closest('.badph')) {
+      const k = Math.round(Math.abs(sl.scrollLeft) / sl.clientWidth), p = ph[k];
+      if (p) { markBad(h, p.page); bubble(h, true); document.dispatchEvent(new Event('photos')); }
+      return;
+    }
     const f = e.target.closest('.fav'); if (f) { f.classList.toggle('on', favs.toggle(h.id)); document.dispatchEvent(new Event('favs')); }
   });
 }
