@@ -13,6 +13,9 @@ const store = {
   set: v => { try { localStorage.setItem(KEY, v); } catch {} },
 };
 
+// מועד סיום הניסיון של המשתמש הנוכחי (null למנהל), להצגה במסך הבית
+export const trial = { ends: null };
+
 const blocked = (kind, info = {}) => Object.assign(new Error(kind), { blocked: kind, ...info });
 
 // קוד מהקישור: שומרים בטלפון ומנקים מהכתובת
@@ -87,6 +90,7 @@ export async function gate() {
     F.updateDoc(ref, { lastSeen: F.serverTimestamp() }).catch(() => {}); // כניסה אחרונה (לא מחכים)
   }
 
+  trial.ends = d.expiresAt.toMillis();
   try { return await loadContent(); }
   catch (e) {
     if (e.code !== 'permission-denied') throw e;

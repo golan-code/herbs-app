@@ -4,6 +4,15 @@ import { E, $, icon, thumb, PART_ICON } from '../ui.js';
 import { go } from '../router.js';
 import { abcList, bindAbc } from './all.js';
 import { badList } from '../commons.js';
+import { trial } from '../access.js';
+
+// למשתמשי ניסיון: כמה זמן נשאר (מנהל לא רואה)
+function trialNote() {
+  if (!trial.ends) return '';
+  const days = Math.ceil((trial.ends - Date.now()) / 864e5);
+  const txt = days <= 1 ? 'היום האחרון לניסיון' : `ניסיון · נשארו ${days} ימים`;
+  return `<span class="trial-left${days <= 3 ? ' soon' : ''}">${txt}</span>`;
+}
 
 export const TABS = [
   ['name', 'צמח', 'חיפוש צמח…'],
@@ -30,7 +39,7 @@ export function render(el) {
   const d = dailyHerb();
   const rec = recent.list().map(herb).filter(Boolean).slice(0, 8);
   el.innerHTML = `
-  <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1></div><span class="pill">${store.herbs.length} צמחים</span></header>
+  <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1>${trialNote()}</div><span class="pill">${store.herbs.length} צמחים</span></header>
   <div id="tabs">${tabsHtml(mode)}</div>
   <div id="sb">${searchBar(mode)}</div>
   <a class="daily-s" href="#/lesson">${thumb(d, 'th sm')}<span><small>${icon('book')} הצמח היומי${learned.has(d.id) ? ' · נלמד ✓' : ''}</small><b>${E(d.n)}</b></span><em>לשיעור</em></a>

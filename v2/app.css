@@ -253,3 +253,5 @@ body.gated{padding-bottom:0}
 .gate-box .gate-btn.alt{background:var(--chip);color:var(--green)}
 .ios-tip{position:fixed;inset-inline:12px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:50;background:var(--green);color:#fff;border-radius:16px;padding:12px 14px 12px 40px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.45}
 .ios-tip button{position:absolute;top:6px;left:6px;background:none!important;border:0!important;box-shadow:none!important;color:#fff!important;font-size:16px;padding:6px 8px!important;flex-direction:row}
+.trial-left{display:inline-block;margin-top:4px;font-size:12.5px;color:var(--mute)}
+.trial-left.soon{color:var(--mustard-ink);font-weight:600}
