@@ -19,30 +19,28 @@ export const trial = { ends: null };
 
 const blocked = (kind, info = {}) => Object.assign(new Error(kind), { blocked: kind, ...info });
 
-// קוד מהקישור: מנקים מהכתובת. נשמר בטלפון רק אחרי שמתברר שזה לא המנהל (ראו gate)
+// אייפון/אייפד ב-Safari (לא מתוך האייקון במסך הבית)
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const IOS_SAFARI = IOS && !navigator.standalone;
+
+// הקוד מהקישור, או השמור בטלפון. נשמר בטלפון רק אחרי שמתברר שזה לא המנהל (ראו gate)
 function codeFromUrl() {
+  return (new URL(location.href).searchParams.get('invite') || '').trim() || store.get();
+}
+// הכתובת בשורת הכתובת: עם הקוד או בלעדיו
+function setUrlCode(code) {
   const u = new URL(location.href);
-  const c = (u.searchParams.get('invite') || '').trim();
-  if (c) {
-    u.searchParams.delete('invite');
-    history.replaceState(null, '', u.pathname + u.search + u.hash);
-  }
-  return c || store.get();
+  if (code) u.searchParams.set('invite', code); else u.searchParams.delete('invite');
+  if (u.href !== location.href) history.replaceState(null, '', u.pathname + u.search + u.hash);
 }
 
-// באייפון, האפליקציה שמותקנת ממסך הבית מקבלת אחסון נפרד מ-Safari.
-// לכן המניפסט כולל את הקוד, והמעבר מ-Safari לאפליקציה המותקנת חינם ב-30 הדקות הראשונות.
-function iosManifest(code) {
-  if (!/iPhone|iPad|iPod/.test(navigator.userAgent)) return;
-  const link = document.querySelector('link[rel=manifest]');
-  if (!link) return;
-  const base = new URL('./', location.href).href;
-  fetch(link.href).then(r => r.json()).then(m => {
-    m.start_url = base + '?invite=' + encodeURIComponent(code);
-    m.scope = base; m.id = base;
-    m.icons = m.icons.map(i => ({ ...i, src: new URL(i.src, link.href).href }));
-    link.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
-  }).catch(() => {});
+// באייפון, האפליקציה שמותקנת ממסך הבית מקבלת אחסון נפרד מ-Safari, ולכן צריכה לקבל את הקוד בכתובת.
+// "הוסף למסך הבית" שומר את כתובת הדף, אבל רק אם אין מניפסט (המניפסט קובע כתובת קבועה בלי קוד).
+// לכן ב-Safari באייפון: מסירים את המניפסט ומשאירים את הקוד בכתובת.
+// המעבר מ-Safari לאפליקציה המותקנת חינם ב-30 הדקות הראשונות.
+function iosKeepCode(code) {
+  document.querySelector('link[rel=manifest]')?.remove();
+  setUrlCode(code);
 }
 
 // kind: 'fresh' (קוד פנוי), 'free' (מעבר בחלון החינם), 'count' (מעבר נספר)
@@ -66,20 +64,20 @@ export async function gate() {
 
   if (isGoogle(user)) {
     // מנהל שפותח קישור של מישהו: לא שומרים את הקוד, כדי שלא ייתפס אם המנהל יתנתק בדפדפן הזה
-    store.clear();
+    store.clear(); setUrlCode(null);
     try { return await loadContent(); }
     catch (e) { if (e.code === 'permission-denied') throw blocked('notadmin'); throw e; }
   }
   if (!code) throw blocked('nocode');
   store.set(code);
-  iosManifest(code);
+  if (IOS_SAFARI) iosKeepCode(code); else setUrlCode(null);
   if (!user) user = (await A.signInAnonymously(auth)).user;
 
   const ref = F.doc(db, 'invites', code);
   const snap = await F.getDoc(ref);
   if (!snap.exists()) throw blocked('invalid');
   const d = snap.data(), name = d.name;
-  if (ended(d)) throw blocked('ended', { name });
+  if (ended(d)) throw blocked('ended', { who: name });
 
   if (!d.deviceUid) await take(user.uid, code, 'fresh');
   else if (d.deviceUid !== user.uid) {
@@ -87,7 +85,7 @@ export async function gate() {
     else {
       const left = MAX_MOVES - (d.moves || 0);
       // מעבר נספר רק בלחיצה, כדי שפתיחה מקרית במכשיר ישן לא "תשרוף" מעבר
-      throw blocked(left > 0 ? 'moved' : 'limit', { name, left, move: () => take(user.uid, code, 'count', d.moves || 0) });
+      throw blocked(left > 0 ? 'moved' : 'limit', { who: name, left, move: () => take(user.uid, code, 'count', d.moves || 0) });
     }
   } else if (!d.lastSeen || Date.now() - d.lastSeen.toMillis() > 10 * 60e3) {
     F.updateDoc(ref, { lastSeen: F.serverTimestamp() }).catch(() => {}); // כניסה אחרונה (לא מחכים)
@@ -99,7 +97,7 @@ export async function gate() {
     if (e.code !== 'permission-denied') throw e;
     // כנראה ננעל, פג תוקף או הועבר ממש עכשיו
     const s2 = await F.getDoc(ref).catch(() => null);
-    throw blocked(s2?.exists() && ended(s2.data()) ? 'ended' : 'invalid', { name });
+    throw blocked(s2?.exists() && ended(s2.data()) ? 'ended' : 'invalid', { who: name });
   }
 }
 
@@ -119,7 +117,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 export function renderBlocked(view, err) {
   const kind = err.blocked || 'error';
   const [title, body, ask] = TEXT[kind] || TEXT.error;
-  const msg = ['שלום, לגבי אפליקציית צמחי המרפא', err.name && `(${err.name})`, ask && `- ${ask}`].filter(Boolean).join(' ');
+  const msg = ['שלום, לגבי אפליקציית צמחי המרפא', err.who && `(${err.who})`, ask && `- ${ask}`].filter(Boolean).join(' ');
   const contact = !ask ? '' : CONTACT.whatsapp
     ? `<a class="btn gate-btn${kind === 'moved' ? ' alt' : ''}" href="https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">שליחת הודעה בוואטסאפ</a>`
     : `<p class="gate-note">אפשר לפנות למי ששלח לך את הקישור.</p>`;
