@@ -58,7 +58,7 @@ function shell(user) {
       <div><label for="unit">יחידה</label><select id="unit"><option value="d">ימים</option><option value="h">שעות</option><option value="m">דקות</option></select></div>
       <button class="b" id="mk">יצירת קישור</button>
     </form>
-    <div class="out" id="res"><code id="lnk"></code><div class="row">
+    <div class="out" id="res"><b id="rname"></b><code id="lnk"></code><div class="row">
       <a class="b wa" id="wa" target="_blank" rel="noopener">שליחה בוואטסאפ</a><button class="b alt" id="cp">העתקת קישור</button></div></div>
   </section>
 
@@ -76,6 +76,8 @@ function shell(user) {
 
   $('#out').onclick = async e => { e.preventDefault(); unsub?.(); await signOut(); loginScreen(); };
   $('#new').onsubmit = createInvite;
+  // מתחילים קוד חדש: מסתירים את הקישור הקודם, כדי שלא יישלח בטעות לאדם הבא
+  $('#nm').oninput = () => { $('#res').style.display = 'none'; };
   $('#flt').onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; filter = b.dataset.f; $('#flt').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); drawList(); };
   $('#list').onclick = onAction;
   $('#file').onchange = () => { $('#up').disabled = !$('#file').files.length; };
@@ -94,6 +96,7 @@ async function createInvite(e) {
       createdAt: F.serverTimestamp(), expiresAt: F.Timestamp.fromMillis(Date.now() + num * UNIT[unit]),
       locked: false, deviceUid: null, claimedAt: null, lastSeen: null, moves: 0,
     });
+    $('#rname').textContent = 'הקישור של ' + name;
     $('#lnk').textContent = linkFor(code);
     $('#wa').href = waFor(name, code);
     $('#cp').onclick = () => copy(linkFor(code), $('#cp'));

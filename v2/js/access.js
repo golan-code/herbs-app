@@ -1,6 +1,6 @@
-// גישה לאפליקציה: קוד הזמנה אישי (?invite=CODE) שננעל למכשיר הראשון, או כניסת מנהל עם Google.
+// גישה לאפליקציה: קוד הזמנה אישי (?invite=CODE) שננעל למכשיר הראשון, או כניסת מנהל עם Google (רק דרך admin.html; אין כפתור כניסת מנהל במסכי החסימה).
 // ההגנה האמיתית בכללי האבטחה (firestore.rules); כאן רק הזרימה והמסכים.
-import { auth, db, A, F, ready, isGoogle, signInGoogle, signOut, loadContent } from './firebase.js';
+import { auth, db, A, F, ready, isGoogle, signOut, loadContent } from './firebase.js';
 
 // דרך ליצור קשר שמופיעה במסכי החסימה. whatsapp: מספר בפורמט בינלאומי בלי + (למשל 972501234567)
 export const CONTACT = { whatsapp: '972523321490', email: '' };
@@ -11,6 +11,7 @@ const KEY = 'herbs2:invite';
 const store = {
   get: () => { try { return localStorage.getItem(KEY); } catch { return null; } },
   set: v => { try { localStorage.setItem(KEY, v); } catch {} },
+  clear: () => { try { localStorage.removeItem(KEY); } catch {} },
 };
 
 // מועד סיום הניסיון של המשתמש הנוכחי (null למנהל), להצגה במסך הבית
@@ -18,16 +19,15 @@ export const trial = { ends: null };
 
 const blocked = (kind, info = {}) => Object.assign(new Error(kind), { blocked: kind, ...info });
 
-// קוד מהקישור: שומרים בטלפון ומנקים מהכתובת
+// קוד מהקישור: מנקים מהכתובת. נשמר בטלפון רק אחרי שמתברר שזה לא המנהל (ראו gate)
 function codeFromUrl() {
   const u = new URL(location.href);
   const c = (u.searchParams.get('invite') || '').trim();
   if (c) {
-    store.set(c);
     u.searchParams.delete('invite');
     history.replaceState(null, '', u.pathname + u.search + u.hash);
   }
-  return store.get();
+  return c || store.get();
 }
 
 // באייפון, האפליקציה שמותקנת ממסך הבית מקבלת אחסון נפרד מ-Safari.
@@ -65,10 +65,13 @@ export async function gate() {
   let user = await ready();
 
   if (isGoogle(user)) {
+    // מנהל שפותח קישור של מישהו: לא שומרים את הקוד, כדי שלא ייתפס אם המנהל יתנתק בדפדפן הזה
+    store.clear();
     try { return await loadContent(); }
     catch (e) { if (e.code === 'permission-denied') throw blocked('notadmin'); throw e; }
   }
   if (!code) throw blocked('nocode');
+  store.set(code);
   iosManifest(code);
   if (!user) user = (await A.signInAnonymously(auth)).user;
 
@@ -130,13 +133,11 @@ export function renderBlocked(view, err) {
     ${contact}
     ${kind === 'error' ? '<button class="btn gate-btn" data-act="retry">נסה שוב</button>' : ''}
     ${kind === 'notadmin' ? '<button class="btn gate-btn" data-act="out">יציאה מהחשבון</button>' : ''}
-    <button class="gate-admin" data-act="admin">כניסת מנהל</button>
   </div>`;
   view.onclick = async e => {
     const b = e.target.closest('[data-act]'), act = b?.dataset.act;
     if (act === 'retry') location.reload();
     if (act === 'out') { await signOut(); location.reload(); }
-    if (act === 'admin') { try { await signInGoogle(); location.reload(); } catch {} }
     if (act === 'move') {
       b.disabled = true; b.textContent = 'מעביר…';
       try { await err.move(); location.reload(); }
