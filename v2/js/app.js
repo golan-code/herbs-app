@@ -61,5 +61,5 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   // כשעולה גרסה חדשה, טוענים אותה מיד במקום להציג את הישנה מהמטמון
   const had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) location.reload(); });
-  addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update()));
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r && r.update()).catch(() => {}));
 }

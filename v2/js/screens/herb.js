@@ -27,7 +27,7 @@ export function render(el, r) {
   el.innerHTML = `
   <div class="bar"><a href="#" class="backb" aria-label="חזרה">${icon('back')}</a><h3>${E(h.n)}</h3></div>
   <button type="button" class="hero ${ph ? 'has' : ''}" aria-label="תמונות של ${E(h.n)}">
-    ${ph ? `<img src="${E(ph.src)}" alt="${E(h.n)}">` : `${icon(herbIcon(h), 'big')}<span>${icon('camera')} תמונה אמיתית תתווסף בהמשך</span>`}
+    ${icon(herbIcon(h), 'big')}<span>${icon('camera')} תמונה אמיתית תתווסף בהמשך</span>${ph ? `<img src="${E(ph.src)}" alt="${E(h.n)}" referrerpolicy="no-referrer">${photos(h).length > 1 ? `<em class="cnt">${icon('camera')} ${photos(h).length}</em>` : ''}` : ''}
   </button>
   <section class="panel">
     <div class="ttl"><div><b dir="ltr">${E(h.latin)}</b><small>${E([h.en, h.part.replace('חלקים בשימוש: ', '')].filter(Boolean).join(' · '))}</small></div>

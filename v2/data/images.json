@@ -1,4 +1,194 @@
 {
-  "_readme": "תמונות לכל צמח לפי המזהה שלו (השם הלטיני באותיות קטנות עם מקפים, למשל achillea-millefolium). אפשר כתובת אחת או כמה. אפשר גם {\"src\": \"...\", \"credit\": \"...\"}. קבצים מקומיים: לשים בתיקייה v2/img/ ולכתוב img/שם-הקובץ.jpg",
-  "herbs": {}
+ "_readme": "תמונות לכל צמח לפי המזהה שלו (השם הלטיני באותיות קטנות עם מקפים, למשל achillea-millefolium). אפשר כתובת אחת או כמה. אפשר גם {\"src\": \"...\", \"credit\": \"...\"}. קבצים מקומיים: לשים בתיקייה v2/img/ ולכתוב img/שם-הקובץ.jpg",
+ "herbs": {
+  "agrimonia-eupatoria": [
+   {
+    "src": "https://www.plantarium.ru/dat/plants/8/806/109806_7ea6c678.jpg",
+    "credit": "plantarium.ru",
+    "page": "https://www.plantarium.ru/page/image/id/109806.html"
+   },
+   {
+    "src": "https://www.awl.ch/heilpflanzen/agrimonia_eupatoria/agrimonia-eupatoria_g.jpg",
+    "credit": "awl.ch",
+    "page": "https://www.awl.ch/heilpflanzen/agrimonia_eupatoria/odermennig.htm"
+   },
+   {
+    "src": "https://www.funghiitaliani.it/uploads/monthly_2023_03/eupatoria.jpg.35d5a744b759c99cf9b8846ca3e05dcc.jpg",
+    "credit": "funghiitaliani.it",
+    "page": "https://www.funghiitaliani.it/topic/14391-agrimonia-eupatoria-l/"
+   }
+  ],
+  "eupatorium-perfoliatum": [
+   {
+    "src": "https://www.promessedefleurs.it/media/catalog/product/cache/c7c41a3458dedddf6c440365192ac7bd/E/u/Eupatorium-perfoliatum-9002-FL.jpg",
+    "credit": "promessedefleurs.it",
+    "page": "https://www.promessedefleurs.it/piante-perenni/piante-perenni-per-varieta/eupatorium/eupatorium-perfoliatum.html"
+   },
+   {
+    "src": "https://www.all-creatures.org/picb/wfshl-boneset-13a.jpg",
+    "credit": "all-creatures.org",
+    "page": "https://www.all-creatures.org/picb/wfshl-boneset-13a.html"
+   },
+   {
+    "src": "https://abnativeplants.com/cdn/shop/products/eupatorium_perfoliatum_ars.31_1200x630.jpg?v=1677477179",
+    "credit": "abnativeplants.com",
+    "page": "https://abnativeplants.com/products/eupatorium-perfoliatum-common-boneset"
+   }
+  ],
+  "eupatorium-purpureum": [
+   {
+    "src": "https://www.illinoiswildflowers.info/savanna/photos/sw_joepye3.jpg",
+    "credit": "illinoiswildflowers.info",
+    "page": "https://www.illinoiswildflowers.info/savanna/plants/sw_joepye.htm"
+   },
+   {
+    "src": "https://sztuka-krajobrazu.pl/galleries/thumbs/fill_in_600x600/wasserdost%2C_wasserhanf%2C_kunigundenkraut_bl%C3%BCte%2C_lat-_eupatorium_purpureum.jpg",
+    "credit": "sztuka-krajobrazu.pl",
+    "page": "https://sztuka-krajobrazu.pl/3332/artykul/katalog-roslin-sadziec-purpurowy"
+   },
+   {
+    "src": "https://www.mayernikkitchen.com/pub/herb-images/20210329211901_JoePyeWeed.jpg",
+    "credit": "mayernikkitchen.com",
+    "page": "https://www.mayernikkitchen.com/medicinal-plants/joe-pye-weed"
+   }
+  ],
+  "juglans-cinerea": [
+   {
+    "src": "https://d25fkdmcid2ugy.cloudfront.net/images/0700/44/original/juglans-cinerea-leaves-3.jpg",
+    "credit": "wp.towson.edu",
+    "page": "https://wp.towson.edu/glenarboretum/butternut/"
+   },
+   {
+    "src": "https://images.squarespace-cdn.com/content/v1/621fdbf4dee9cb1743074e0a/695552c8-1158-4b80-bce7-85f4571b1755/butternut_nuts_credit%2Bdarlingtonpp.jpeg",
+    "credit": "treesforlife.ca",
+    "page": "https://www.treesforlife.ca/news/get-to-know-your-native-plants-by-nature-8hzs2"
+   }
+  ],
+  "cola-vera-nitida": [
+   {
+    "src": "https://herbalistics.com.au/wp-content/uploads/2015/08/Z0Q71rPRWqh27zrWCmcw_thumb_5ada-e1520214533567.jpg",
+    "credit": "herbalistics.com.au",
+    "page": "https://herbalistics.com.au/product/cola-nitida-kola-nut-plant/"
+   },
+   {
+    "src": "https://images.squarespace-cdn.com/content/v1/5a5f182cbe42d619379891ca/1518181007190-Z4XSI9EBIQVALA6FYY29/Cola%2Bnitida%2Bfruit%2Bgroup.jpg",
+    "credit": "regenerag.org",
+    "page": "https://regenerag.org/blog/2018/2/9/cola-nitida-cola-nitida-cola-nut-abata-cola-gbanja-cola-goro-cola-labozhi-kola"
+   },
+   {
+    "src": "https://gaiastore.eu/wp-content/uploads/2019/08/Fruits_of_Cola_nitida-1030x1026.jpg",
+    "credit": "gaiastore.eu",
+    "page": "https://gaiastore.eu/en/kolovnik-leskly-cola-nitida/"
+   }
+  ],
+  "juglans-nigra": [
+   {
+    "src": "https://www.utsc.utoronto.ca/biosci/sites/utsc.utoronto.ca.biosci/files/images/treewalk/Black_walnut_Juglans_nigra.jpg",
+    "credit": "utsc.utoronto.ca",
+    "page": "https://www.utsc.utoronto.ca/biosci/black-walnut"
+   },
+   {
+    "src": "https://objects.liquidweb.services/images/201706/bill_harms_35192997412_8de5d987c4_b.jpg",
+    "credit": "marylandbiodiversity.com",
+    "page": "https://www.marylandbiodiversity.com/species/1412"
+   },
+   {
+    "src": "https://www.nps.gov/articles/000/images/BW7-Kaselow.JPG",
+    "credit": "nps.gov",
+    "page": "https://www.nps.gov/articles/000/cny-treephenology-blackwalnut.htm"
+   }
+  ],
+  "paeonia-lactiflora": [
+   {
+    "src": "https://www.plantarium.ru/dat/plants/7/776/780776_5269457e.jpg",
+    "credit": "plantarium.ru",
+    "page": "https://www.plantarium.ru/page/image/id/780776.html"
+   },
+   {
+    "src": "https://apps.rhs.org.uk/plantselectorimages/detail/00818TS.jpg",
+    "credit": "rhs.org.uk",
+    "page": "https://www.rhs.org.uk/plants/75088/paeonia-lactiflora-jan-van-leeuwen/details"
+   }
+  ],
+  "usnea-spp": [
+   {
+    "src": "https://www.fs.usda.gov/wildflowers/beauty/lichens/images/biology/usnea_longissima_dillman_lg.jpg",
+    "credit": "fs.usda.gov",
+    "page": "https://www.fs.usda.gov/wildflowers/plant-of-the-week/usnea_longissima.shtml"
+   },
+   {
+    "src": "https://media04.meinbezirk.at/article/2014/04/09/4/3914674_XXL.jpg",
+    "credit": "meinbezirk.at",
+    "page": "https://www.meinbezirk.at/lungau/c-lokales/der-baum-mit-dem-bart_a907375"
+   }
+  ],
+  "ulmus-rubra-fulva": [
+   {
+    "src": "https://ufi.mgcafe.uky.edu/sites/ufi.ca.uky.edu/files/inline-images/5473625-SMPT_0.jpeg",
+    "credit": "ufi.mgcafe.uky.edu",
+    "page": "https://ufi.mgcafe.uky.edu/tree-highlight-slippery-elm"
+   },
+   {
+    "src": "https://wcbotanicalclub.org/wp-content/uploads/2018/04/dh-dsc_9671_slippery-elm-ulmus-rubra.jpg?w=900",
+    "credit": "wcbotanicalclub.org",
+    "page": "https://wcbotanicalclub.org/dh-dsc_9671_slippery-elm-ulmus-rubra/"
+   },
+   {
+    "src": "https://2.bp.blogspot.com/-Fsq5lk7uuf4/TeOGK5d309I/AAAAAAAADPc/PqJhwkcQS4I/s1600/Ulmus%2Brubra%2B%2B2208.jpg",
+    "credit": "floraurbana.blogspot.com",
+    "page": "https://floraurbana.blogspot.com/2011/05/ulmus-rubra.html"
+   }
+  ],
+  "lavendula-officinalis": [
+   {
+    "src": "https://www.highcountrygardens.com/cdn/shop/files/lavandula-angustifolia-vera-cc_1.jpg?v=1761077410&width=1946",
+    "credit": "highcountrygardens.com",
+    "page": "https://www.highcountrygardens.com/products/perennial-lavandula-angustifolia-vera"
+   },
+   {
+    "src": "https://www.le-chatel-des-vivaces.com/9643-large_default/lavande-angustifolia-essence-purple.jpg",
+    "credit": "le-chatel-des-vivaces.com",
+    "page": "https://www.le-chatel-des-vivaces.com/lavande/3585-lavande-angustifolia-essence-purple.html"
+   },
+   {
+    "src": "https://www.rootsplants.co.uk/cdn/shop/products/oldenglish1.jpg?v=1688742554",
+    "credit": "storage.googleapis.com",
+    "page": "https://storage.googleapis.com/dpynqjlcwtmwje/english-lavender-lavandula-angustifolia.html"
+   }
+  ],
+  "azadirachta-indica": [
+   {
+    "src": "https://upload.wikimedia.org/wikipedia/commons/6/64/Azadirachta_indica_A._Juss._%2831761735438%29.jpg",
+    "credit": "commons.wikimedia.org",
+    "page": "https://commons.wikimedia.org/wiki/File%3AAzadirachta_indica_A._Juss._%2831761735438%29.jpg"
+   },
+   {
+    "src": "https://www.dominicagardens.com/uploads/9/2/0/3/92034718/neem4_1_orig.jpg",
+    "credit": "dominicagardens.com",
+    "page": "https://www.dominicagardens.com/medicinal-plants.html"
+   },
+   {
+    "src": "https://toptropicals.com/pics/toptropicals/articles/trees/neem/carr1156.jpg",
+    "credit": "toptropicals.com",
+    "page": "https://toptropicals.com/html/toptropicals/articles/trees/neem.htm"
+   }
+  ],
+  "lycium-barbarum": [
+   {
+    "src": "https://botanikus.de/fileadmin/Bilder/sonstiges/Bocksdorn-gr.jpg",
+    "credit": "botanikus.de",
+    "page": "https://botanikus.de/informatives/giftpflanzen/alle-giftpflanzen/bocksdorn"
+   },
+   {
+    "src": "https://www.directplant.nl/media/catalog/product/l/y/lycium_barbarum__2__1.jpg?fit=crop&height=600&optimize=medium&width=600",
+    "credit": "directplant.nl",
+    "page": "https://www.directplant.nl/boksdoorn-lycium-barbarum.html"
+   },
+   {
+    "src": "https://www.schwitter.ch/content/uploads/2018/06/Lycium-barbarum_14144041.jpg",
+    "credit": "schwitter.ch",
+    "page": "https://www.schwitter.ch/produkt/lycium-barbarum-goji-beere-no-1-chinesische-wolfsbeere/"
+   }
+  ]
+ }
 }

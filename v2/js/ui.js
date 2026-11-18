@@ -34,8 +34,7 @@ export const herbIcon = h => PART_ICON[h.p.split(', ')[0]] || 'leaf';
 // תמונה ממוזערת: תמונה אמיתית אם קיימת, אחרת שומר מקום עם אייקון החלק בשימוש
 export function thumb(h, cls = 'th') {
   const ph = photos(h)[0];
-  return ph ? `<span class="${cls} has"><img src="${E(ph.src)}" alt="" loading="lazy"></span>`
-            : `<span class="${cls}">${icon(herbIcon(h))}</span>`;
+  return `<span class="${cls}">${icon(herbIcon(h))}${ph ? `<img src="${E(ph.src)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}</span>`;
 }
 
 export function herbCard(h, { uses, extra = '' } = {}) {
@@ -62,7 +61,7 @@ export function bubble(h) {
   closeLayers();
   const ph = photos(h);
   const slides = ph.length
-    ? ph.map(p => `<figure><img src="${E(p.src)}" alt="${E(h.n)}">${p.credit ? `<figcaption>${E(p.credit)}</figcaption>` : ''}</figure>`).join('')
+    ? ph.map(p => `<figure><span class="nf">${icon('camera')}<span>התמונה לא נטענה</span></span><img src="${E(p.src)}" alt="${E(h.n)}" referrerpolicy="no-referrer">${p.credit ? `<figcaption>${p.page ? `<a href="${E(p.page)}" target="_blank" rel="noopener">מקור: ${E(p.credit)}</a>` : E(p.credit)}</figcaption>` : ''}</figure>`).join('')
     : `<figure class="ph">${icon('camera')}<span>כאן תופיע תמונה אמיתית של הצמח</span></figure>`;
   const el = document.createElement('div');
   el.className = 'layer';
@@ -82,6 +81,9 @@ export function bubble(h) {
     const f = e.target.closest('.fav'); if (f) { f.classList.toggle('on', favs.toggle(h.id)); document.dispatchEvent(new Event('favs')); }
   });
 }
+
+// תמונה שלא נטענה (קישור שבור או חסום): מסתירים אותה ומשאירים את שומר המקום
+document.addEventListener('error', e => { if (e.target.tagName === 'IMG') e.target.classList.add('broken'); }, true);
 
 export function closeLayers() { document.querySelectorAll('.layer').forEach(l => l.remove()); }
 addEventListener('keydown', e => { if (e.key === 'Escape') closeLayers(); });
