@@ -16,7 +16,7 @@ before(async () => {
 after(() => env.cleanup());
 
 const inFuture = (ms = 864e5) => Timestamp.fromMillis(Date.now() + ms);
-const invite = (extra = {}) => ({ name: 'דנה', days: 14, createdAt: Timestamp.now(), expiresAt: inFuture(), locked: false, deviceUid: null, claimedAt: null, lastSeen: null, ...extra });
+const invite = (extra = {}) => ({ name: 'דנה', days: 14, createdAt: Timestamp.now(), expiresAt: inFuture(), locked: false, deviceUid: null, claimedAt: null, lastSeen: null, moves: 0, ...extra });
 
 beforeEach(async () => {
   await env.clearFirestore();
@@ -31,13 +31,20 @@ beforeEach(async () => {
     await setDoc(doc(db, 'devices/dev1'), { code: 'TAKEN', at: Timestamp.now() });
     // קוד שנתפס לפני דקה במכשיר dev2 (עדיין בחלון המעבר)
     await setDoc(doc(db, 'invites/FRESH'), invite({ deviceUid: 'dev2', claimedAt: Timestamp.fromMillis(Date.now() - 6e4) }));
+    // קוד שכבר הועבר 3 פעמים
+    await setDoc(doc(db, 'invites/MAXED'), invite({ deviceUid: 'dev3', claimedAt: Timestamp.fromMillis(Date.now() - 36e5), moves: 3 }));
+    await setDoc(doc(db, 'devices/dev3'), { code: 'MAXED', at: Timestamp.now() });
   });
 });
 
 const anon = uid => env.authenticatedContext(uid, { firebase: { sign_in_provider: 'anonymous' } }).firestore();
-const claim = (db, uid, code, move = false) => {
+// kind: 'fresh' (קוד פנוי), 'free' (מעבר בתוך החלון), או מספר = ערך moves החדש (מעבר נספר)
+const claim = (db, uid, code, kind = 'fresh') => {
   const b = writeBatch(db);
-  b.update(doc(db, 'invites', code), move ? { deviceUid: uid, lastSeen: serverTimestamp() } : { deviceUid: uid, claimedAt: serverTimestamp(), lastSeen: serverTimestamp() });
+  b.update(doc(db, 'invites', code),
+    kind === 'fresh' ? { deviceUid: uid, claimedAt: serverTimestamp(), lastSeen: serverTimestamp() }
+    : kind === 'free' ? { deviceUid: uid, lastSeen: serverTimestamp() }
+    : { deviceUid: uid, lastSeen: serverTimestamp(), moves: kind });
   b.set(doc(db, 'devices', uid), { code, at: serverTimestamp() });
   return b.commit();
 };
@@ -57,17 +64,27 @@ test('תפיסת קוד פנוי ואז קריאת תוכן', async () => {
   await assertSucceeds(getDocs(collection(db, 'content')));
 });
 
-test('מכשיר שני לא יכול לתפוס קוד שנתפס', async () => {
+test('מכשיר שני: אחרי החלון, מעבר רק אם נספר (moves+1), והמכשיר הקודם מאבד גישה', async () => {
   const db = anon('other');
-  await assertFails(getDoc(doc(db, 'invites/TAKEN')));
-  await assertFails(claim(db, 'other', 'TAKEN'));
-  await assertFails(claim(db, 'other', 'TAKEN', true));
+  await assertSucceeds(getDoc(doc(db, 'invites/TAKEN')));           // רואה את המצב כדי להציע העברה
   await assertFails(getDocs(collection(db, 'content')));
+  await assertFails(claim(db, 'other', 'TAKEN', 'fresh'));
+  await assertFails(claim(db, 'other', 'TAKEN', 'free'));            // מחוץ לחלון החינם
+  await assertFails(claim(db, 'other', 'TAKEN', 5));                 // קפיצה במונה
+  await assertSucceeds(claim(db, 'other', 'TAKEN', 1));
+  await assertSucceeds(getDocs(collection(db, 'content')));
+  await assertFails(getDocs(collection(anon('dev1'), 'content')));   // הקודם בחוץ
 });
 
-test('מעבר מכשיר מותר רק ב-30 הדקות הראשונות', async () => {
-  await assertFails(claim(anon('dev1b'), 'dev1b', 'TAKEN', true));
-  await assertSucceeds(claim(anon('dev2b'), 'dev2b', 'FRESH', true));
+test('אחרי 3 מעברים: אין עוד מעבר', async () => {
+  await assertFails(claim(anon('n'), 'n', 'MAXED', 4));
+  await assertFails(claim(anon('n'), 'n', 'MAXED', 'free'));
+  await assertSucceeds(getDocs(collection(anon('dev3'), 'content'))); // המכשיר הנוכחי ממשיך לעבוד
+});
+
+test('בתוך 30 הדקות הראשונות: מעבר חינם, בלי לגעת במונה', async () => {
+  await assertFails(claim(anon('dev2b'), 'dev2b', 'FRESH', 1));
+  await assertSucceeds(claim(anon('dev2b'), 'dev2b', 'FRESH', 'free'));
   await assertSucceeds(getDocs(collection(anon('dev2b'), 'content')));
 });
 
@@ -76,12 +93,15 @@ test('המכשיר הנכון קורא, ומעדכן כניסה אחרונה ב�
   await assertSucceeds(getDocs(collection(db, 'content')));
   await assertSucceeds(updateDoc(doc(db, 'invites/TAKEN'), { lastSeen: serverTimestamp() }));
   await assertFails(updateDoc(doc(db, 'invites/TAKEN'), { expiresAt: inFuture(1e10) }));
+  await assertFails(updateDoc(doc(db, 'invites/TAKEN'), { moves: 0 }));
   await assertFails(updateDoc(doc(db, 'invites/TAKEN'), { locked: false, lastSeen: serverTimestamp() , name: 'x' }));
 });
 
 test('קוד נעול או פג תוקף: אי אפשר לתפוס ואין קריאה', async () => {
   await assertFails(claim(anon('a'), 'a', 'LOCKED'));
   await assertFails(claim(anon('b'), 'b', 'OLD'));
+  await env.withSecurityRulesDisabled(ctx => updateDoc(doc(ctx.firestore(), 'invites/FRESH'), { locked: true }));
+  await assertFails(claim(anon('c'), 'c', 'FRESH', 'free'));
   await env.withSecurityRulesDisabled(ctx => updateDoc(doc(ctx.firestore(), 'invites/TAKEN'), { locked: true }));
   await assertFails(getDocs(collection(anon('dev1'), 'content')));
   await assertSucceeds(getDoc(doc(anon('dev1'), 'invites/TAKEN'))); // כדי להציג "תקופת הניסיון הסתיימה"
@@ -110,7 +130,7 @@ test('אדמין: קורא, כותב ומנהל קודים', async () => {
   await assertSucceeds(setDoc(doc(db, 'content/herbs-0'), { json: '[1]' }));
   await assertSucceeds(getDocs(collection(db, 'invites')));
   await assertSucceeds(setDoc(doc(db, 'invites/NEW'), invite()));
-  await assertSucceeds(updateDoc(doc(db, 'invites/TAKEN'), { locked: true, deviceUid: null }));
+  await assertSucceeds(updateDoc(doc(db, 'invites/TAKEN'), { locked: true, deviceUid: null, moves: 0 }));
   await assertSucceeds(deleteDoc(doc(db, 'invites/NEW')));
 });
 

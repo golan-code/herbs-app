@@ -1,5 +1,6 @@
 // דף הניהול: כניסה עם Google (רק המייל של המנהל, נאכף בכללי האבטחה), יצירת קודים וניהולם, העלאת הנתונים.
 import { auth, db, F, ready, isGoogle, signInGoogle, signOut } from './firebase.js';
+import { MAX_MOVES } from './access.js';
 
 const $ = s => document.querySelector(s);
 const app = $('#app');
@@ -7,7 +8,9 @@ const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '
 const BASE = new URL('./', location.href).href;
 const linkFor = code => BASE + '?invite=' + encodeURIComponent(code);
 const waFor = (name, code) => 'https://wa.me/?text=' + encodeURIComponent(
-  `שלום ${name}, זה הקישור האישי שלך לאפליקציית צמחי המרפא:\n${linkFor(code)}\n\nהקישור עובד במכשיר אחד בלבד (הראשון שנפתח בו).`);
+  `שלום ${name}, זה הקישור האישי שלך לאפליקציית צמחי המרפא:\n${linkFor(code)}\n\n` +
+  `הקישור עובד בכל פעם במכשיר אחד.\n` +
+  `באייפון: פתחו את הקישור, לחצו על כפתור השיתוף ← "הוסף למסך הבית", ומעכשיו היכנסו מהאייקון.`);
 const UNIT = { d: 864e5, h: 36e5, m: 6e4 };
 const fmt = ts => ts ? new Date(ts.toMillis()).toLocaleString('he-IL', { day: 'numeric', month: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
 
@@ -89,7 +92,7 @@ async function createInvite(e) {
     await F.setDoc(F.doc(db, 'invites', code), {
       name, days: unit === 'd' ? num : +(num * UNIT[unit] / UNIT.d).toFixed(4),
       createdAt: F.serverTimestamp(), expiresAt: F.Timestamp.fromMillis(Date.now() + num * UNIT[unit]),
-      locked: false, deviceUid: null, claimedAt: null, lastSeen: null,
+      locked: false, deviceUid: null, claimedAt: null, lastSeen: null, moves: 0,
     });
     $('#lnk').textContent = linkFor(code);
     $('#wa').href = waFor(name, code);
@@ -108,11 +111,12 @@ function drawList() {
     return `<div class="inv" data-code="${esc(d.id)}">
       <div class="top"><span class="name">${esc(d.name)}</span><span class="st ${cls}">${txt}</span></div>
       <div class="meta"><span>תפוגה</span><span>${fmt(d.expiresAt)}</span><span>כניסה אחרונה</span><span>${fmt(d.lastSeen)}</span>
-        <span>מכשיר</span><span>${d.deviceUid ? 'מחובר' : 'עוד לא נכנס'}</span><span>קוד</span><span dir="ltr" style="text-align:right">${esc(d.id)}</span></div>
+        <span>מכשיר</span><span>${d.deviceUid ? 'מחובר' : 'עוד לא נכנס'}</span>
+        <span>מעברי מכשיר</span><span${(d.moves || 0) >= MAX_MOVES ? ' class="err"' : ''}>${d.moves || 0} מתוך ${MAX_MOVES}</span><span>קוד</span><span dir="ltr" style="text-align:right">${esc(d.id)}</span></div>
       <div class="acts">
         ${d.locked ? '<button class="b sm" data-a="unlock">שחרור</button>' : '<button class="b warn sm" data-a="lock">נעילה</button>'}
         <button class="b alt sm" data-a="extend">הארכה</button>
-        <button class="b alt sm" data-a="reset"${d.deviceUid ? '' : ' disabled'}>איפוס מכשיר</button>
+        <button class="b alt sm" data-a="reset"${d.deviceUid || d.moves ? '' : ' disabled'}>איפוס מכשיר</button>
         <button class="b alt sm" data-a="copy">העתקת קישור</button>
         <a class="b wa sm" href="${esc(waFor(d.name, d.id))}" target="_blank" rel="noopener">וואטסאפ</a>
         <button class="b warn sm" data-a="del">מחיקה</button>
@@ -135,8 +139,8 @@ async function onAction(e) {
         await F.updateDoc(ref, { expiresAt: F.Timestamp.fromMillis(from + n * UNIT.d) }); break;
       }
       case 'reset':
-        if (!confirm(`לאפס את המכשיר של "${d.name}"? המכשיר הבא שיפתח את הקישור יקבל את הגישה.`)) return;
-        await F.updateDoc(ref, { deviceUid: null, claimedAt: null }); break;
+        if (!confirm(`לאפס את "${d.name}"? המכשיר הבא שיפתח את הקישור יקבל את הגישה, ומונה המעברים יתאפס.`)) return;
+        await F.updateDoc(ref, { deviceUid: null, claimedAt: null, moves: 0 }); break;
       case 'del':
         if (!confirm(`למחוק את הקוד של "${d.name}"? הקישור יפסיק לעבוד, ואי אפשר לבטל את זה.`)) return;
         await F.deleteDoc(ref); break;

@@ -2,9 +2,9 @@ rules_version = '2';
 
 // גישת ניסיון לאפליקציית צמחי המרפא.
 // - content/*  התוכן המקצועי. קריאה: אדמין, או מכשיר שמחזיק קוד הזמנה תקף. כתיבה: אדמין בלבד.
-// - invites/*  קודי הזמנה. מזהה המסמך הוא הקוד עצמו. האדמין מנהל; משתמש יכול רק לתפוס קוד פנוי
-//              (או קוד שנתפס לפני פחות מ-30 דקות, כדי לאפשר מעבר מהדפדפן לאפליקציה המותקנת באייפון)
-//              ולעדכן "כניסה אחרונה" לקוד שלו.
+// - invites/*  קודי הזמנה. מזהה המסמך הוא הקוד עצמו. האדמין מנהל.
+//              הקוד פעיל בכל רגע במכשיר אחד. משתמש יכול לתפוס קוד פנוי, להעביר אותו למכשיר אחר
+//              (חינם ב-30 הדקות הראשונות, ואחר כך עד 3 מעברים נספרים), ולעדכן "כניסה אחרונה".
 // - devices/{uid}  איזה קוד שייך למכשיר (משתמש אנונימי). נכתב יחד עם תפיסת הקוד.
 // כל השאר חסום.
 service cloud.firestore {
@@ -49,33 +49,62 @@ service cloud.firestore {
     }
 
     // ---------- קודי הזמנה ----------
+    // מי שמחזיק בקוד (מזהה המסמך הוא סוד של 10 תווים) רשאי לקרוא אותו, כדי לדעת את מצבו.
     match /invites/{code} {
-      // משתמש רגיל רואה רק קוד פנוי או את הקוד שלו (כדי לדעת אם נעול / פג תוקף). רשימה: רק אדמין.
-      allow get: if isAdmin()
-        || (signedIn() && (resource.data.deviceUid == null || resource.data.deviceUid == request.auth.uid));
+      allow get: if isAdmin() || signedIn();
       allow list: if isAdmin();
       allow create, delete: if isAdmin();
 
       allow update: if isAdmin()
-        // תפיסת הקוד במכשיר הראשון (או מעבר מכשיר בתוך 30 הדקות הראשונות)
-        || (signedIn()
-            && (resource.data.deviceUid == null
-                || (resource.data.claimedAt is timestamp
-                    && request.time < resource.data.claimedAt + duration.value(30, 'm')))
-            && resource.data.locked == false
-            && resource.data.expiresAt > request.time
-            && onlyChanged(['deviceUid', 'claimedAt', 'lastSeen'])
-            && request.resource.data.deviceUid == request.auth.uid
-            && request.resource.data.lastSeen == request.time
-            && (resource.data.deviceUid == null
-                ? request.resource.data.claimedAt == request.time
-                : request.resource.data.claimedAt == resource.data.claimedAt)
-            && getAfter(devicePath(request.auth.uid)).data.code == code)
+        || claimFresh(code) || freeMove(code) || countedMove(code)
         // עדכון "כניסה אחרונה" על ידי המכשיר שמחזיק בקוד
         || (signedIn()
             && resource.data.deviceUid == request.auth.uid
             && onlyChanged(['lastSeen'])
             && request.resource.data.lastSeen == request.time);
+    }
+
+    // תנאים משותפים לכל תפיסה/העברה של קוד אל המכשיר הזה
+    function takeOk(code) {
+      return signedIn()
+        && resource.data.locked == false
+        && resource.data.expiresAt > request.time
+        && request.resource.data.deviceUid == request.auth.uid
+        && request.resource.data.lastSeen == request.time
+        && getAfter(devicePath(request.auth.uid)).data.code == code;
+    }
+
+    function inFreeWindow() {
+      return resource.data.claimedAt is timestamp
+        && request.time < resource.data.claimedAt + duration.value(30, 'm');
+    }
+
+    // כניסה ראשונה (או אחרי "איפוס מכשיר"): פותחת חלון של 30 דקות למעבר חינם
+    function claimFresh(code) {
+      return resource.data.deviceUid == null
+        && takeOk(code)
+        && onlyChanged(['deviceUid', 'claimedAt', 'lastSeen'])
+        && request.resource.data.claimedAt == request.time;
+    }
+
+    // מעבר חינם בתוך החלון (למשל מ-Safari לאפליקציה המותקנת באייפון)
+    function freeMove(code) {
+      return resource.data.deviceUid != null
+        && resource.data.deviceUid != request.auth.uid
+        && inFreeWindow()
+        && takeOk(code)
+        && onlyChanged(['deviceUid', 'lastSeen']);
+    }
+
+    // מעבר אחרי החלון: נספר, עד 3 פעמים
+    function countedMove(code) {
+      return resource.data.deviceUid != null
+        && resource.data.deviceUid != request.auth.uid
+        && !inFreeWindow()
+        && resource.data.get('moves', 0) < 3
+        && takeOk(code)
+        && onlyChanged(['deviceUid', 'lastSeen', 'moves'])
+        && request.resource.data.moves == resource.data.get('moves', 0) + 1;
     }
 
     // ---------- מכשיר → קוד ----------
