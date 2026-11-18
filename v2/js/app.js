@@ -34,8 +34,38 @@ const NAV = [
 ];
 
 const view = $('#view'), nav = $('#nav');
-nav.innerHTML = NAV.map(([p, t, i]) => `<a href="#/${p}" data-p="${p}">${icon(i)}<span>${t}</span></a>`).join('');
+nav.innerHTML = `<div class="navin"><i class="pill"></i>${NAV.map(([p, t, i]) => `<a href="#/${p}" data-p="${p}" draggable="false">${icon(i)}<span>${t}</span></a>`).join('')}</div>`;
+const pill = $('.pill', nav), links = [...nav.querySelectorAll('a')];
+// מזיזים את האליפסה אל כפתור (או למיקום חופשי בזמן גרירה)
+const placePill = (x, w) => { pill.style.width = w + 'px'; pill.style.transform = `translateX(${x}px)`; };
+const pillTo = a => { if (!a) { pill.style.opacity = 0; return; } pill.style.opacity = 1; placePill(a.offsetLeft, a.offsetWidth); };
+addEventListener('resize', () => pillTo(nav.querySelector('a.on')));
+// גרירה: האליפסה עוקבת אחרי האצבע, ובשחרור עוברים לכפתור הקרוב
+{
+  let drag = null;
+  const nearest = x => links.reduce((b, a) => Math.abs(a.offsetLeft + a.offsetWidth / 2 - x) < Math.abs(b.offsetLeft + b.offsetWidth / 2 - x) ? a : b);
+  const localX = e => e.clientX - $('.navin', nav).getBoundingClientRect().left;
+  nav.addEventListener('pointerdown', e => { drag = { x0: e.clientX, moved: false }; });
+  nav.addEventListener('pointermove', e => {
+    if (!drag) return;
+    if (!drag.moved && Math.abs(e.clientX - drag.x0) < 6) return;
+    drag.moved = true; nav.classList.add('drag');
+    const w = links[0].offsetWidth, x = Math.max(0, Math.min(localX(e) - w / 2, $('.navin', nav).offsetWidth - w));
+    placePill(x, w); pill.style.opacity = 1;
+    const n = nearest(localX(e)); links.forEach(a => a.classList.toggle('on', a === n));
+  });
+  const end = e => {
+    if (!drag) return; const d = drag; drag = null; nav.classList.remove('drag');
+    if (!d.moved) return;
+    const n = nearest(localX(e)); pillTo(n);
+    nav.dataset.justDragged = 1; setTimeout(() => delete nav.dataset.justDragged, 60);
+    if (n.dataset.p !== currentNav || parse().name !== n.dataset.p) location.hash = '#/' + n.dataset.p;
+  };
+  nav.addEventListener('pointerup', end); nav.addEventListener('pointercancel', () => { drag = null; nav.classList.remove('drag'); pillTo(nav.querySelector('a.on')); });
+  nav.addEventListener('click', e => { if (nav.dataset.justDragged) e.preventDefault(); });
+}
 
+let currentNav = '';
 const scrollPos = new Map();
 let current = '';
 function render() {
@@ -46,8 +76,9 @@ function render() {
   view.innerHTML = '';
   view.className = 'scr scr-' + (r.name || 'home');
   mod.render(view, r);
-  const navKey = mod.nav ?? r.name;
-  nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.p === navKey));
+  const navKey = mod.nav ?? r.name; currentNav = navKey;
+  links.forEach(a => a.classList.toggle('on', a.dataset.p === navKey));
+  requestAnimationFrame(() => pillTo(nav.querySelector('a.on')));
   current = location.hash;
   scrollTo(0, scrollPos.get(current) || 0);
 }
