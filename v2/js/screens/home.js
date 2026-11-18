@@ -57,16 +57,30 @@ export function render(el) {
     if (dir) $('.sbar', el).classList.add(dir > 0 ? 'in-r' : 'in-l');
   };
   const sw = $('.swipe', el);
-  let sx = null, sy = 0;
-  sw.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
-  sw.addEventListener('touchend', e => {
+  // ההחלטה נעשית כבר בזמן התנועה: באייפון, ברגע שהדף מתחיל לגלול מגיע touchcancel ולא touchend
+  let sx = null, sy = 0, horiz = false;
+  sw.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { sx = null; return; }
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; horiz = false;
+  }, { passive: true });
+  sw.addEventListener('touchmove', e => {
     if (sx === null) return;
-    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+    if (!horiz) {
+      if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { sx = null; return; } // גלילה רגילה למעלה/למטה
+      if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) horiz = true;
+    }
+    if (!horiz) return;
+    if (e.cancelable) e.preventDefault(); // תנועה לצדדים: לא לגלול את הדף
+    if (Math.abs(dx) < 35) return;
+    sx = null;
     // עברית: הלשונית הבאה נמצאת משמאל, לכן החלקה ימינה מביאה אותה
     const i = TABS.findIndex(t => t[0] === mode) + (dx > 0 ? 1 : -1);
     if (i >= 0 && i < TABS.length) setMode(TABS[i][0], dx > 0 ? 1 : -1);
-  }, { passive: true });
+  }, { passive: false });
+  const end = () => { sx = null; };
+  sw.addEventListener('touchend', end, { passive: true });
+  sw.addEventListener('touchcancel', end, { passive: true });
   $('#tabs', el).onclick = e => {
     const b = e.target.closest('[data-m]'); if (b) setMode(b.dataset.m);
   };
