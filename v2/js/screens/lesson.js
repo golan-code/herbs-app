@@ -5,7 +5,7 @@ import { dailyHerb, similar } from '../search.js';
 import { E, $, icon, thumb } from '../ui.js';
 import { tcmBlocks, tcmTags, pills } from './herb.js';
 
-export const nav = '';
+export const nav = 'lesson';  // מודגש בסרגל התחתון
 
 const TEMPS = ['חם', 'ניטרלי', 'קריר', 'קר'];
 const fmt = d => d.toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });

@@ -14,7 +14,7 @@
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;cursor:pointer}
 .i{width:22px;height:22px;flex:none}
@@ -206,16 +206,23 @@ img.broken{display:none}
 .past b{font:700 15px var(--serif)}
 .past .i{position:absolute;top:8px;inset-inline-end:8px;width:16px;color:var(--ok)}
 
-/* bottom nav: אליפסה שמחליקה בין הכפתורים, אפשר גם לגרור אותה באצבע */
-nav{position:fixed;bottom:0;inset-inline:0;z-index:10;background:var(--surface);padding:10px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(40,60,50,.07);touch-action:none;user-select:none;-webkit-user-select:none}
-.navin{position:relative;display:flex;max-width:520px;margin:auto}
-.navpill{position:absolute;top:0;bottom:0;left:0;border-radius:99px;background:var(--green);box-shadow:0 4px 12px rgba(44,74,58,.3);transition:transform .32s cubic-bezier(.3,1.3,.5,1),width .3s;pointer-events:none}
-nav.drag .navpill{transition:none}
-nav a{position:relative;z-index:1;flex:1;display:flex;justify-content:center;align-items:center;gap:6px;color:#7d8780;font-size:13.5px;padding:10px 4px;border-radius:99px;transition:color .2s;-webkit-user-drag:none}
-nav a span{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;transition:max-width .3s,opacity .2s}
-nav a.on{color:var(--on-green)}
-nav a.on span{max-width:80px;opacity:1}
-@media (min-width:700px){nav{max-width:560px;margin:auto;bottom:14px;border-radius:99px;box-shadow:var(--sh)}}
+/* bottom nav: סרגל זכוכית צף, אליפסה שקופה שמחליקה בין הכפתורים (אפשר גם לגרור אותה באצבע) */
+nav{position:fixed;bottom:calc(10px + env(safe-area-inset-bottom));inset-inline:12px;max-width:520px;margin:auto;z-index:10;padding:5px;border-radius:99px;
+  background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(18px) saturate(1.7);backdrop-filter:blur(18px) saturate(1.7);
+  border:1px solid rgba(255,255,255,.75);box-shadow:0 8px 28px rgba(30,50,40,.16),inset 0 1px 0 rgba(255,255,255,.8);
+  touch-action:none;user-select:none;-webkit-user-select:none}
+.navin{position:relative;display:flex}
+.navpill{position:absolute;top:0;bottom:0;left:0;border-radius:99px;pointer-events:none;
+  background:rgba(44,74,58,.11);border:1px solid rgba(255,255,255,.7);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.9),0 2px 8px rgba(30,50,40,.08);
+  transition:transform .32s cubic-bezier(.3,1.3,.5,1),width .3s,scale .2s,background .2s}
+nav.drag .navpill{transition:scale .2s,background .2s;scale:1.12;background:rgba(255,255,255,.45);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.95),0 6px 18px rgba(30,50,40,.18)}
+nav a{position:relative;z-index:1;flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;
+  color:var(--ink2);font-size:11px;line-height:1.2;padding:7px 2px 6px;border-radius:99px;transition:color .2s;-webkit-user-drag:none}
+nav a .i{width:22px;height:22px}
+nav a span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+nav a.on{color:var(--green);font-weight:600}
 @media (max-width:360px){.tiles{grid-template-columns:repeat(4,1fr);gap:6px}.tiles a{font-size:11px}.tabs{gap:16px}}
 .hero.has{height:300px}
 .allbtn{display:flex;align-items:center;gap:14px;margin-top:22px;background:var(--green);color:var(--on-green);border-radius:18px;padding:16px 18px;box-shadow:var(--sh)}

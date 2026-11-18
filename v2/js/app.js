@@ -29,6 +29,7 @@ const ROUTES = [
 ];
 const NAV = [
   ['', 'בית', 'home'],
+  ['lesson', 'הצמח היומי', 'book'],
   ['fav', 'מועדפים', 'heart'],
   ['tcm', 'מבט סיני', 'yin'],
   ['search', 'חיפוש', 'search'],
@@ -39,7 +40,13 @@ nav.innerHTML = `<div class="navin"><i class="navpill"></i>${NAV.map(([p, t, i])
 const pill = $(".navpill", nav), links = [...nav.querySelectorAll('a')];
 // מזיזים את האליפסה אל כפתור (או למיקום חופשי בזמן גרירה)
 const placePill = (x, w) => { pill.style.width = w + 'px'; pill.style.transform = `translateX(${x}px)`; };
-const pillTo = a => { if (!a) { pill.style.opacity = 0; return; } pill.style.opacity = 1; placePill(a.offsetLeft, a.offsetWidth); };
+let pillReady = false;
+const pillTo = a => {
+  if (!a) { pill.style.opacity = 0; return; }
+  pill.style.opacity = 1;
+  if (!pillReady) { pill.style.transition = 'none'; placePill(a.offsetLeft, a.offsetWidth); pill.offsetWidth; pill.style.transition = ''; pillReady = true; return; } // בפתיחה: במקום, בלי החלקה
+  placePill(a.offsetLeft, a.offsetWidth);
+};
 addEventListener('resize', () => pillTo(nav.querySelector('a.on')));
 // גרירה: האליפסה עוקבת אחרי האצבע, ובשחרור עוברים לכפתור הקרוב
 {
