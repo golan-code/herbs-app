@@ -57,4 +57,9 @@ document.addEventListener('click', e => {
   history.length > 1 ? history.back() : go('');
 });
 
-if ('serviceWorker' in navigator && location.protocol !== 'file:') addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  // כשעולה גרסה חדשה, טוענים אותה מיד במקום להציג את הישנה מהמטמון
+  const had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) location.reload(); });
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update()));
+}
