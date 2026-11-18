@@ -45,7 +45,9 @@ export async function load() {
 }
 
 export const herb = id => store.byId.get(id);
-export const photos = h => (store.images[h.id] || []).map(p => typeof p === 'string' ? { src: p } : p);
+import { autoPhotos } from './commons.js';
+// תמונות שנבחרו ידנית ב-data/images.json, ואם אין – תמונות חופשיות מ-Wikimedia Commons
+export const photos = h => store.images[h.id]?.length ? store.images[h.id].map(p => typeof p === 'string' ? { src: p } : p) : autoPhotos(h);
 
 // ---- שמירה מקומית בטלפון ----
 const KEY = 'herbs2:';

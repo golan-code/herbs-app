@@ -2,6 +2,7 @@
 // להוספת מסך חדש (פתולוגיות, פורמולות, מקרה חי): יוצרים קובץ ב-screens/ ומוסיפים שורה ל-ROUTES,
 // ואם צריך כפתור בסרגל התחתון, שורה ל-NAV.
 import { load } from './store.js';
+import { loadLeadPhotos } from './commons.js';
 import { icon, closeLayers, $ } from './ui.js';
 import { parse, go } from './router.js';
 import * as home from './screens/home.js';
@@ -49,7 +50,7 @@ function render() {
   scrollTo(0, scrollPos.get(current) || 0);
 }
 
-load().then(() => { addEventListener('hashchange', render); render(); })
+load().then(() => { addEventListener('hashchange', render); render(); loadLeadPhotos(() => { if (document.querySelector('.layer') || document.activeElement?.matches('input')) return; const y = scrollY; render(); scrollTo(0, y); }); })
   .catch(() => { view.innerHTML = '<p class="empty">לא ניתן לטעון את הנתונים. יש לפתוח את האפליקציה דרך האתר (https) ולא ישירות מהקובץ.</p>'; });
 
 // כפתור חזרה בכותרות

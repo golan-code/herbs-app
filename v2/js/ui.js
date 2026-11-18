@@ -1,5 +1,6 @@
 // רכיבי ממשק משותפים: אייקונים, חלונית תחתונה, בועת תמונה, כרטיס צמח.
 import { favs, photos } from './store.js';
+import { morePhotos } from './commons.js';
 
 export const E = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' }[c]));
 export const $ = (s, r = document) => r.querySelector(s);
@@ -57,8 +58,9 @@ export function sheet(title, html) {
 }
 
 // ---- בועת תמונה (החלקה ימינה על כרטיס או לחיצה על התמונה הקטנה) ----
-export function bubble(h) {
+export function bubble(h, again) {
   closeLayers();
+  if (!again) morePhotos(h).then(r => { if (r && document.querySelector('.bub')) bubble(h, true); });
   const ph = photos(h);
   const slides = ph.length
     ? ph.map(p => `<figure><span class="nf">${icon('camera')}<span>התמונה לא נטענה</span></span><img src="${E(p.src)}" alt="${E(h.n)}" referrerpolicy="no-referrer">${p.credit ? `<figcaption>${p.page ? `<a href="${E(p.page)}" target="_blank" rel="noopener">מקור: ${E(p.credit)}</a>` : E(p.credit)}</figcaption>` : ''}</figure>`).join('')
