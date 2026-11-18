@@ -18,9 +18,11 @@ const app = initializeApp({
 export const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/[?&]prod\b/.test(location.search);
 
 export const auth = A.getAuth(app);
-// מטמון מקומי: התוכן נשמר בטלפון אחרי הטעינה הראשונה, כדי שיעבוד גם בלי אינטרנט
+// מטמון מקומי: התוכן נשמר בטלפון אחרי הטעינה הראשונה, כדי שיעבוד גם בלי אינטרנט.
+// לשונית אחת בלבד מחזיקה את המטמון. לשונית נוספת עובדת מהרשת בלי מטמון.
+// (עם מטמון משותף לכמה לשוניות, ב-Safari לשונית חדשה נתקעה על "טוען…" כשלשונית ישנה הייתה פתוחה ברקע)
 export const db = F.initializeFirestore(app, {
-  localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }),
+  localCache: F.persistentLocalCache({ tabManager: F.persistentSingleTabManager() }),
 });
 if (local) {
   A.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });

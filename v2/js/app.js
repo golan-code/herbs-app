@@ -91,8 +91,13 @@ function render() {
   scrollTo(0, scrollPos.get(current) || 0);
 }
 
-gate().then(load).then(() => { addEventListener('hashchange', render); render(); iosTip(); loadLeadPhotos(() => { if (document.querySelector('.layer') || document.activeElement?.matches('input')) return; const y = scrollY; render(); scrollTo(0, y); }); })
-  .catch(e => { console.warn(e); renderBlocked(view, e); });
+// אם הטעינה נתקעת, מציגים "נסה שוב" במקום "טוען…" בלי סוף. אם היא מסתיימת בכל זאת, ממשיכים כרגיל.
+let started = false;
+const slow = setTimeout(() => { if (!started) renderBlocked(view, { blocked: 'slow' }); }, 20e3);
+const settle = () => { started = true; clearTimeout(slow); document.body.classList.remove('gated'); view.onclick = null; };
+
+gate().then(d => { settle(); return load(d); }).then(() => { addEventListener('hashchange', render); render(); iosTip(); loadLeadPhotos(() => { if (document.querySelector('.layer') || document.activeElement?.matches('input')) return; const y = scrollY; render(); scrollTo(0, y); }); })
+  .catch(e => { console.warn(e); settle(); renderBlocked(view, e); });
 
 // כפתור חזרה בכותרות
 document.addEventListener('click', e => {

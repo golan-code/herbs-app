@@ -110,6 +110,7 @@ const TEXT = {
   nocode: ['הכניסה בהזמנה בלבד', 'כדי להיכנס צריך קישור אישי. אפשר לבקש אותו ממני.', 'אשמח לקבל קישור לאפליקציה'],
   notadmin: ['החשבון הזה לא מורשה', 'נכנסת עם חשבון Google שאין לו גישה לאפליקציה.', ''],
   error: ['לא ניתן לטעון את הנתונים', 'בדוק את החיבור לאינטרנט ונסה שוב.', ''],
+  slow: ['הטעינה לוקחת יותר מדי זמן', 'אם האפליקציה פתוחה גם בלשונית אחרת בדפדפן, כדאי לסגור אותה ולנסות שוב.', ''],
 };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -129,7 +130,7 @@ export function renderBlocked(view, err) {
     ${kind === 'moved' ? `<button class="btn gate-btn" data-act="move">להעביר למכשיר הזה</button>
       <p class="gate-note">${err.left === 1 ? 'נשאר מעבר אחד' : `נשארו ${err.left} מעברים`} מתוך ${MAX_MOVES}.</p>` : ''}
     ${contact}
-    ${kind === 'error' ? '<button class="btn gate-btn" data-act="retry">נסה שוב</button>' : ''}
+    ${kind === 'error' || kind === 'slow' ? '<button class="btn gate-btn" data-act="retry">נסה שוב</button>' : ''}
     ${kind === 'notadmin' ? '<button class="btn gate-btn" data-act="out">יציאה מהחשבון</button>' : ''}
   </div>`;
   view.onclick = async e => {
