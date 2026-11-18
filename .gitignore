@@ -1,3 +1,8 @@
 node_modules/
 *.log
 .DS_Store
+
+# התוכן המקצועי לא נכנס לריפו הציבורי. מעלים אותו רק דרך דף הניהול (v2/admin.html).
+herbs-data.json
+herbs-all.*
+root-herbs.*
