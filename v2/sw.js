@@ -1,5 +1,5 @@
 // גרסת המטמון של v2: להעלות את המספר בכל שינוי בדף, בקוד או בנתונים
-const CACHE = 'herbs2-v2';
+const CACHE = 'herbs2-v3';
 const FILES = ['./', 'index.html', 'app.css', 'manifest.webmanifest',
   'js/app.js', 'js/router.js', 'js/store.js', 'js/search.js', 'js/ui.js',
   'js/screens/home.js', 'js/screens/results.js', 'js/screens/herb.js', 'js/screens/favorites.js',
@@ -10,7 +10,7 @@ const FILES = ['./', 'index.html', 'app.css', 'manifest.webmanifest',
   '../icons/icon-192.png', '../icons/icon-512.png', '../icons/icon-maskable-512.png', '../icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, {cache: 'reload'})))).then(() => self.skipWaiting()));
 });
 
 // מוחק רק מטמונים ישנים של v2, לא את של הגרסה הראשית
@@ -31,9 +31,8 @@ self.addEventListener('fetch', e => {
       fetch(e.request).then(r => { if (r.ok || r.type === 'opaque') c.put(e.request, r.clone()); return r; })));
     return;
   }
-  e.respondWith(caches.open(CACHE).then(async c => {
-    const hit = await c.match(e.request, {ignoreSearch: true});
-    const net = fetch(e.request).then(r => { if (r.ok) c.put(e.request, r.clone()); return r; }).catch(() => hit);
-    return hit || net;
-  }));
+  // קודם מהרשת (כך שעדכונים מופיעים מיד), ואם אין רשת – מהמטמון
+  e.respondWith(caches.open(CACHE).then(c =>
+    fetch(e.request, {cache: 'no-cache'}).then(r => { if (r.ok) c.put(e.request, r.clone()); return r; })
+      .catch(() => c.match(e.request, {ignoreSearch: true}))));
 });
