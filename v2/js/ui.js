@@ -39,7 +39,7 @@ export function thumb(h, cls = 'th') {
 
 export function herbCard(h, { uses, extra = '' } = {}) {
   return `<div class="rw" data-id="${h.id}"><div class="under">${icon('camera')}<span>תמונה</span></div>
-  <a class="res" href="#/herb/${h.id}" draggable="false"><div><b>${E(h.n)}${extra}</b><small dir="ltr">${E(h.latin)}</small>
+  <a class="res" href="#/herb/${h.id}" draggable="false"><div><b>${E(h.n || h.latin)}${extra}</b><small dir="ltr">${E(h.latin)}</small>
   <p>${E((uses || h.main.slice(0, 3)).join(', '))}</p></div><button type="button" class="thb" aria-label="תמונה של ${E(h.n)}">${thumb(h)}</button></a></div>`;
 }
 

@@ -11,6 +11,7 @@ import * as favorites from './screens/favorites.js';
 import * as tcm from './screens/tcm.js';
 import * as search from './screens/search.js';
 import * as lesson from './screens/lesson.js';
+import * as all from './screens/all.js';
 
 const ROUTES = [
   ['', home],
@@ -20,6 +21,7 @@ const ROUTES = [
   ['tcm', tcm],
   ['search', search],
   ['lesson', lesson],
+  ['all', all],
 ];
 const NAV = [
   ['', 'בית', 'home'],
