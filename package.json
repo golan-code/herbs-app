@@ -1,0 +1,15 @@
+{
+  "name": "herbs-app-dev",
+  "private": true,
+  "type": "module",
+  "description": "כלי פיתוח בלבד (בדיקות כללי אבטחה). האתר עצמו סטטי ולא צריך התקנה.",
+  "scripts": {
+    "test:rules": "firebase emulators:exec --only firestore --project demo-herbs \"node --test tests/rules.test.mjs\"",
+    "emulators": "firebase emulators:start --only auth,firestore --project golan-herbs-app",
+    "deploy:rules": "firebase deploy --only firestore:rules"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.0.2"
+  }
+}

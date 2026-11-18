@@ -1,7 +1,7 @@
 // שכבת הנתונים: טעינה, מזהים קבועים, אינדקס חיפוש, ושמירה מקומית (מועדפים, אחרונים).
 // כל מודול עתידי (פתולוגיות, פורמולות, מקרה חי) ניגש לצמחים רק דרך הקובץ הזה, לפי herb.id.
 
-export const DATA_URL = '../herbs-data.json';   // מקור אחד לנתונים, משותף לגרסה הישנה ולחדשה
+// רשימת הצמחים מגיעה מ-Firestore (ראו access.js ו-firebase.js), רק למי שיש לו גישה. התמונות והשיעורים נשארים בקבצים.
 
 // מזהה קבוע לכל צמח, מהשם הלטיני: "Achillea millefolium" → "achillea-millefolium"
 export const slug = lat => lat.split(' · ')[0].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -22,9 +22,8 @@ const getJSON = async (url, fallback) => {
   catch (e) { if (fallback !== undefined) return fallback; throw e; }
 };
 
-export async function load() {
-  const [raw, images, lessons] = await Promise.all([
-    getJSON(DATA_URL),
+export async function load(raw) {
+  const [images, lessons] = await Promise.all([
     getJSON('data/images.json', {}),
     getJSON('data/lessons.json', {}),
   ]);

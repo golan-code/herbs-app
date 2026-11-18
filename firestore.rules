@@ -1,0 +1,98 @@
+rules_version = '2';
+
+// גישת ניסיון לאפליקציית צמחי המרפא.
+// - content/*  התוכן המקצועי. קריאה: אדמין, או מכשיר שמחזיק קוד הזמנה תקף. כתיבה: אדמין בלבד.
+// - invites/*  קודי הזמנה. מזהה המסמך הוא הקוד עצמו. האדמין מנהל; משתמש יכול רק לתפוס קוד פנוי
+//              (או קוד שנתפס לפני פחות מ-30 דקות, כדי לאפשר מעבר מהדפדפן לאפליקציה המותקנת באייפון)
+//              ולעדכן "כניסה אחרונה" לקוד שלו.
+// - devices/{uid}  איזה קוד שייך למכשיר (משתמש אנונימי). נכתב יחד עם תפיסת הקוד.
+// כל השאר חסום.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // האדמין מזוהה לפי SHA-256 של המייל, כדי שהמייל לא יופיע בקוד הציבורי
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email_verified == true
+        && hashing.sha256(request.auth.token.email.lower()).toHexString().lower()
+           == '55a7954be436152dd2ac92430294cf9a59ae1388d34c58c9f60a3d457ec87ebb';
+    }
+
+    function signedIn() { return request.auth != null; }
+
+    function invitePath(code) { return /databases/$(database)/documents/invites/$(code); }
+    function devicePath(uid) { return /databases/$(database)/documents/devices/$(uid); }
+
+    // קוד תקף: שייך למכשיר הזה, לא נעול ולא פג תוקף
+    function inviteOk(inv) {
+      return inv.deviceUid == request.auth.uid
+        && inv.locked == false
+        && inv.expiresAt > request.time;
+    }
+
+    function hasAccess() {
+      return signedIn()
+        && exists(devicePath(request.auth.uid))
+        && exists(invitePath(get(devicePath(request.auth.uid)).data.code))
+        && inviteOk(get(invitePath(get(devicePath(request.auth.uid)).data.code)).data);
+    }
+
+    function onlyChanged(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    // ---------- תוכן מקצועי ----------
+    match /content/{docId} {
+      allow read: if isAdmin() || hasAccess();
+      allow write: if isAdmin();
+    }
+
+    // ---------- קודי הזמנה ----------
+    match /invites/{code} {
+      // משתמש רגיל רואה רק קוד פנוי או את הקוד שלו (כדי לדעת אם נעול / פג תוקף). רשימה: רק אדמין.
+      allow get: if isAdmin()
+        || (signedIn() && (resource.data.deviceUid == null || resource.data.deviceUid == request.auth.uid));
+      allow list: if isAdmin();
+      allow create, delete: if isAdmin();
+
+      allow update: if isAdmin()
+        // תפיסת הקוד במכשיר הראשון (או מעבר מכשיר בתוך 30 הדקות הראשונות)
+        || (signedIn()
+            && (resource.data.deviceUid == null
+                || (resource.data.claimedAt is timestamp
+                    && request.time < resource.data.claimedAt + duration.value(30, 'm')))
+            && resource.data.locked == false
+            && resource.data.expiresAt > request.time
+            && onlyChanged(['deviceUid', 'claimedAt', 'lastSeen'])
+            && request.resource.data.deviceUid == request.auth.uid
+            && request.resource.data.lastSeen == request.time
+            && (resource.data.deviceUid == null
+                ? request.resource.data.claimedAt == request.time
+                : request.resource.data.claimedAt == resource.data.claimedAt)
+            && getAfter(devicePath(request.auth.uid)).data.code == code)
+        // עדכון "כניסה אחרונה" על ידי המכשיר שמחזיק בקוד
+        || (signedIn()
+            && resource.data.deviceUid == request.auth.uid
+            && onlyChanged(['lastSeen'])
+            && request.resource.data.lastSeen == request.time);
+    }
+
+    // ---------- מכשיר → קוד ----------
+    match /devices/{uid} {
+      allow get: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow list: if isAdmin();
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['code', 'at'])
+        && request.resource.data.code is string
+        && request.resource.data.at == request.time
+        && getAfter(invitePath(request.resource.data.code)).data.deviceUid == uid;
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
