@@ -34,8 +34,8 @@ const NAV = [
 ];
 
 const view = $('#view'), nav = $('#nav');
-nav.innerHTML = `<div class="navin"><i class="pill"></i>${NAV.map(([p, t, i]) => `<a href="#/${p}" data-p="${p}" draggable="false">${icon(i)}<span>${t}</span></a>`).join('')}</div>`;
-const pill = $('.pill', nav), links = [...nav.querySelectorAll('a')];
+nav.innerHTML = `<div class="navin"><i class="navpill"></i>${NAV.map(([p, t, i]) => `<a href="#/${p}" data-p="${p}" draggable="false">${icon(i)}<span>${t}</span></a>`).join('')}</div>`;
+const pill = $(".navpill", nav), links = [...nav.querySelectorAll('a')];
 // מזיזים את האליפסה אל כפתור (או למיקום חופשי בזמן גרירה)
 const placePill = (x, w) => { pill.style.width = w + 'px'; pill.style.transform = `translateX(${x}px)`; };
 const pillTo = a => { if (!a) { pill.style.opacity = 0; return; } pill.style.opacity = 1; placePill(a.offsetLeft, a.offsetWidth); };

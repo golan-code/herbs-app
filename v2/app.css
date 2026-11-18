@@ -209,8 +209,8 @@ img.broken{display:none}
 /* bottom nav: אליפסה שמחליקה בין הכפתורים, אפשר גם לגרור אותה באצבע */
 nav{position:fixed;bottom:0;inset-inline:0;z-index:10;background:var(--surface);padding:10px 10px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(40,60,50,.07);touch-action:none;user-select:none;-webkit-user-select:none}
 .navin{position:relative;display:flex;max-width:520px;margin:auto}
-.pill{position:absolute;top:0;bottom:0;left:0;border-radius:99px;background:var(--green);box-shadow:0 4px 12px rgba(44,74,58,.3);transition:transform .32s cubic-bezier(.3,1.3,.5,1),width .3s;pointer-events:none}
-nav.drag .pill{transition:none}
+.navpill{position:absolute;top:0;bottom:0;left:0;border-radius:99px;background:var(--green);box-shadow:0 4px 12px rgba(44,74,58,.3);transition:transform .32s cubic-bezier(.3,1.3,.5,1),width .3s;pointer-events:none}
+nav.drag .navpill{transition:none}
 nav a{position:relative;z-index:1;flex:1;display:flex;justify-content:center;align-items:center;gap:6px;color:#7d8780;font-size:13.5px;padding:10px 4px;border-radius:99px;transition:color .2s;-webkit-user-drag:none}
 nav a span{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;transition:max-width .3s,opacity .2s}
 nav a.on{color:var(--on-green)}
