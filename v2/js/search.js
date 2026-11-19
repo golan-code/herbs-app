@@ -15,8 +15,11 @@ export const selCount = sel => Object.values(sel).reduce((s, x) => s + x.length,
 const tcmOk = (h, sel) => Object.entries(sel).every(([k, vs]) => vs.every(v => h.c[k].includes(v)));
 
 // mode: 'all' | 'name' | 'uses' | 'tcm'
+// באייפון הגרש ב"צ'י" נכתב לפעמים כ-’ או ׳. בנתונים יש רק ' רגיל, אז מאחדים.
+const norm = q => q.trim().toLowerCase().replace(/[’‘׳`´]/g, "'");
+
 export function find({ q = '', mode = 'all', part = '', sel = emptySel() } = {}) {
-  const v = q.trim().toLowerCase();
+  const v = norm(q);
   const field = { all: '_s', name: '_name', uses: '_uses', tcm: '_tcm' }[mode];
   let res = store.herbs.filter(h => (!v || h[field].includes(v)) && (!part || hasPart(h, part)) && tcmOk(h, sel));
   if (v && mode === 'name') res = rank(res, h => h.n.toLowerCase().startsWith(v) || h.latin.toLowerCase().startsWith(v) ? 0 : 1);
@@ -27,7 +30,7 @@ const rank = (a, f) => a.map((h, k) => [f(h), k, h]).sort((x, y) => x[0] - y[0] 
 
 // השימושים שמתאימים לחיפוש, להצגה בכרטיס
 export function matchedUses(h, q) {
-  const v = q.trim().toLowerCase();
+  const v = norm(q);
   if (!v) return h.main.slice(0, 3);
   const m = [...h.main, ...h.sec, ...h.eff].filter(x => x.toLowerCase().includes(v));
   return [...new Set([...m, ...h.main])].slice(0, 3);

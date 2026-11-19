@@ -34,7 +34,8 @@ export async function load(raw) {
       _s: searchText(h),
       _name: (h.n + ' ' + h.lat).toLowerCase(),
       _uses: [...h.main, ...h.sec, ...h.eff].join(' | ').toLowerCase(),
-      _tcm: h.tcm.map(b => b.q != null ? b.q + ' ' + b.v : b.a + ' ' + b.li.join(' ')).join(' ').toLowerCase(),
+      // כל המידע של המבט הסיני: התגיות (טעם, טמפרטורה, לחות, פעולות) וגם הטקסט המלא
+      _tcm: [...h.c.t, ...h.c.m, ...h.c.l, ...h.c.a, ...h.tcm.map(b => b.q != null ? b.q + ' ' + b.v : b.a + ' ' + b.li.join(' '))].join(' | ').toLowerCase(),
     });
   });
   store.herbs.forEach(h => store.byId.set(h.id, h));
