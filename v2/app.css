@@ -230,8 +230,7 @@ nav a.on{color:var(--green);font-weight:600}
 .allbtn{display:flex;align-items:center;gap:14px;margin-top:22px;background:var(--green);color:var(--on-green);border-radius:18px;padding:16px 18px;box-shadow:var(--sh)}
 .allbtn>span{flex:1}.allbtn b{display:block;font:700 19px var(--serif)}.allbtn small{font-size:13px;opacity:.85}
 .allbtn .i{width:26px;height:26px}
-/* translateZ: שכבה נפרדת, כדי שבאייפון השורה לא תיעלם לרגע כשהדף קופץ לאות */
-.abc{position:sticky;top:0;z-index:5;isolation:isolate;transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;gap:4px;padding:8px 2px;margin:0 -2px 6px;background:var(--bg);overflow-x:auto;scrollbar-width:none}.abc::-webkit-scrollbar{display:none}
+.abc{position:sticky;top:0;z-index:5;isolation:isolate;display:flex;gap:4px;padding:8px 2px;margin:0 -2px 6px;background:var(--bg);overflow-x:auto;scrollbar-width:none}.abc::-webkit-scrollbar{display:none}
 .abc button{position:relative;flex:none;width:34px;height:34px;border:0;border-radius:50%;background:var(--surface);box-shadow:0 2px 6px rgba(40,60,50,.08);font:700 15px var(--serif);color:transparent}
 /* האות מצוירת מעל העיגול הירוק שמחליק בין האותיות, כמו האליפסה בסרגל התחתון */
 .abc button::after{content:attr(data-l);position:absolute;inset:0;z-index:2;display:grid;place-items:center;color:var(--green);transition:color .2s}

@@ -44,7 +44,8 @@ export function bindAbc(el) {
   // האות הנוכחית: הכותרת האחרונה שעברה את תחתית השורה; בתחתית הדף — האחרונה
   const pick = () => {
     raf = 0;
-    if (held && held.y === scrollY) return;  // אחרי לחיצה: נשארים על האות שנלחצה עד שגוללים
+    // אחרי לחיצה: נשארים על האות שנלחצה בזמן הגלילה אליה, ואחריה עד שגוללים שוב
+    if (held && (held.y === undefined || held.y === scrollY)) return;
     held = null;
     let i = -1;
     if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = heads.length - 1;
@@ -59,15 +60,22 @@ export function bindAbc(el) {
     if (!top.isConnected) return removeEventListener('scroll', upd);
     if (scrollY < 40) jumped = false;
     top.classList.toggle('on', jumped || scrollY > 400);
+    if (held && held.y === undefined) settle();
     raf ||= requestAnimationFrame(pick);
+  };
+  // הגלילה לאות הסתיימה כשאין גלילה 150ms
+  let settleT = 0;
+  const settle = () => {
+    clearTimeout(settleT);
+    settleT = setTimeout(() => { if (!held) return; held.y = scrollY; jumped = scrollY >= 40; top.classList.toggle('on', jumped || scrollY > 400); }, 150);
   };
   addEventListener('scroll', upd, { passive: true });
   top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+  // גלילה חלקה ולא קפיצה: באייפון קפיצה מיידית מעלימה לרגע את השורה הדביקה
   abc.onclick = e => {
     const b = e.target.closest('[data-l]'); if (!b) return;
-    document.getElementById(lid(b.dataset.l)).scrollIntoView({ block: 'start' });
-    jumped = scrollY >= 40; upd();
-    held = { y: scrollY }; mark(b);
+    held = {}; mark(b); settle();
+    document.getElementById(lid(b.dataset.l)).scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
   pick();
 }
