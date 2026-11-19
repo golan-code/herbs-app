@@ -23,6 +23,8 @@ const P = {
   tuber: '<ellipse cx="12" cy="14" rx="6" ry="5"/><path d="M12 9V4M12 6l-3-2M12 6l3-2"/>',
   whole: '<path d="M12 21V9"/><path d="M12 13c-4 0-6-2-6-5 3 0 6 2 6 5zM12 11c4 0 6-2 6-5-3 0-6 2-6 5z"/><path d="M8 21h8"/>',
   fungus: '<path d="M4 12a8 6 0 0 1 16 0z"/><path d="M10 12v7h4v-7"/>',
+  resin: '<path d="M12 3c3 5 6 8 6 12a6 6 0 0 1-12 0c0-4 3-7 6-12z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/>',
+  other: '<circle cx="12" cy="12" r="8"/><circle cx="8.5" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="15.5" cy="12" r=".6"/>',
   flask: '<path d="M9 3h6M10 3v6l-5 10h14l-5-10V3"/>',
   warn: '<path d="M12 4 3 20h18z"/><path d="M12 10v4M12 17v.5"/>',
   book: '<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>',
@@ -30,7 +32,7 @@ const P = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/>',
 };
 export const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
-export const PART_ICON = { 'שורש': 'root', 'פקעת': 'tuber', 'עלים': 'leaf', 'פרחים': 'flower', 'פרי וזרעים': 'seed', 'קליפה וגזע': 'bark', 'הצמח כולו / נוף': 'whole', 'פטרייה / שרף / אחר': 'fungus' };
+export const PART_ICON = { 'שורש': 'root', 'פקעת': 'tuber', 'עלים': 'leaf', 'פרחים': 'flower', 'פרי וזרעים': 'seed', 'קליפה וגזע': 'bark', 'הצמח כולו / נוף': 'whole', 'פטרייה': 'fungus', 'שרף': 'resin', 'אחר': 'other' };
 export const herbIcon = h => PART_ICON[h.p.split(', ')[0]] || 'leaf';
 
 // תמונה ממוזערת: תמונה אמיתית אם קיימת, אחרת שומר מקום עם אייקון החלק בשימוש

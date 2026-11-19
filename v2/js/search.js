@@ -1,7 +1,8 @@
 // חיפוש וסינון. הכללים זהים לגרסה הנוכחית; נוספו מצבי חיפוש לפי לשונית.
 import { store } from './store.js';
 
-export const PARTS = ['שורש', 'פקעת', 'עלים', 'פרחים', 'פרי וזרעים', 'קליפה וגזע', 'הצמח כולו / נוף', 'פטרייה / שרף / אחר'];
+export const PARTS = ['שורש', 'פקעת', 'עלים', 'פרחים', 'פרי וזרעים', 'קליפה וגזע', 'הצמח כולו / נוף', 'פטרייה', 'שרף', 'אחר'];
+const hasPart = (h, p) => h.p.split(', ').includes(p);
 export const TCM_GROUPS = [
   ['t', 'טעם', ['מר', 'מתוק', 'פיקנטי / חריף', 'מלוח', 'חמוץ', 'מצמת / סופח', 'ארומתי', 'תפל']],
   ['m', 'טמפרטורה', ['חם', 'ניטרלי', 'קריר', 'קר']],
@@ -17,7 +18,7 @@ const tcmOk = (h, sel) => Object.entries(sel).every(([k, vs]) => vs.every(v => h
 export function find({ q = '', mode = 'all', part = '', sel = emptySel() } = {}) {
   const v = q.trim().toLowerCase();
   const field = { all: '_s', name: '_name', uses: '_uses', tcm: '_tcm' }[mode];
-  let res = store.herbs.filter(h => (!v || h[field].includes(v)) && (!part || h.p.includes(part)) && tcmOk(h, sel));
+  let res = store.herbs.filter(h => (!v || h[field].includes(v)) && (!part || hasPart(h, part)) && tcmOk(h, sel));
   if (v && mode === 'name') res = rank(res, h => h.n.toLowerCase().startsWith(v) || h.latin.toLowerCase().startsWith(v) ? 0 : 1);
   if (v && mode === 'uses') res = rank(res, h => h.main.some(x => x.toLowerCase().includes(v)) ? 0 : h.sec.some(x => x.toLowerCase().includes(v)) ? 1 : 2);
   return res;
@@ -52,7 +53,7 @@ export function tcmCounts() {
   return c;
 }
 export function partCounts() {
-  return Object.fromEntries(PARTS.map(p => [p, store.herbs.filter(h => h.p.includes(p)).length]));
+  return Object.fromEntries(PARTS.map(p => [p, store.herbs.filter(h => hasPart(h, p)).length]));
 }
 
 // הצמח היומי: סדר קבוע ומעורבב, כך שכל הצמחים עוברים לפני שחוזרים על צמח
