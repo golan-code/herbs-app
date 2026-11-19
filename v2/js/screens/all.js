@@ -17,21 +17,27 @@ const lid = l => 'l-' + (l === '#' ? 'x' : l);
 
 export function abcList() {
   const g = groups();
-  return `<div class="abc">${[...g.keys()].map(l => `<button type="button" data-l="${l}">${l}</button>`).join('')}</div>
+  return `<div class="abc"><i class="abcpill"></i>${[...g.keys()].map(l => `<button type="button" data-l="${l}">${l}</button>`).join('')}</div>
     <div class="list abclist">${[...g].map(([l, hs]) => `<h4 class="letter" id="${lid(l)}">${l}</h4>${hs.map(h => herbCard(h)).join('')}`).join('')}</div>
     <button type="button" class="totop" aria-label="חזרה לראש הדף">${icon('up')}</button>`;
 }
 export function bindAbc(el) {
   bindList($('.abclist', el));
-  const top = $('.totop', el), abc = $('.abc', el);
-  const btns = [...abc.children], heads = [...el.querySelectorAll('.letter')];
-  let jumped = false, cur = null, raf = 0, held = null;
-  // מסמנים אות ומזיזים את השורה (רק לרוחב, לא את הדף) כך שהאות באמצע
+  const top = $('.totop', el), abc = $('.abc', el), pill = $('.abcpill', abc);
+  const btns = [...abc.querySelectorAll('button')], heads = [...el.querySelectorAll('.letter')];
+  let jumped = false, cur = null, raf = 0, held = null, shown = false;
+  // מסמנים אות: העיגול הירוק מחליק אליה (כמו האליפסה בסרגל התחתון), והשורה זזה לרוחב (לא הדף) כך שהאות באמצע
   const mark = b => {
     if (b === cur) return;
     cur?.classList.remove('on'); cur = b;
-    if (!b) return abc.scrollTo({ left: 0, behavior: 'smooth' });  // בראש הדף: השורה חוזרת להתחלה
+    if (!b) { pill.style.opacity = 0; shown = false; return abc.scrollTo({ left: 0, behavior: 'smooth' }); }  // בראש הדף: העיגול נעלם והשורה חוזרת להתחלה
     b.classList.add('on');
+    if (!shown) pill.style.transition = 'opacity .2s';  // כשהעיגול מופיע: במקום, בלי החלקה
+    // מודדים על המסך (עובד מימין לשמאל וגם באמצע החלקה): כמה להזיז את מרכז העיגול למרכז האות
+    const p = pill.getBoundingClientRect(), r0 = b.getBoundingClientRect();
+    pill.style.translate = `${(parseFloat(getComputedStyle(pill).translate) || 0) + r0.left + r0.width / 2 - (p.left + p.width / 2)}px 0`;
+    if (!shown) { pill.offsetWidth; pill.style.transition = ''; shown = true; }
+    pill.style.opacity = 1;
     const r = b.getBoundingClientRect(), a = abc.getBoundingClientRect();
     abc.scrollBy({ left: r.left + r.width / 2 - (a.left + a.width / 2), behavior: 'smooth' });
   };
