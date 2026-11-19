@@ -17,7 +17,7 @@ const lid = l => 'l-' + (l === '#' ? 'x' : l);
 
 export function abcList() {
   const g = groups();
-  return `<div class="abc"><i class="abcpill"></i>${[...g.keys()].map(l => `<button type="button" data-l="${l}">${l}</button>`).join('')}</div>
+  return `<div class="abcmark"></div><div class="abc"><i class="abcpill"></i>${[...g.keys()].map(l => `<button type="button" data-l="${l}">${l}</button>`).join('')}</div><div class="abcgap"></div>
     <div class="list abclist">${[...g].map(([l, hs]) => `<h4 class="letter" id="${lid(l)}">${l}</h4>${hs.map(h => herbCard(h)).join('')}`).join('')}</div>
     <button type="button" class="totop" aria-label="חזרה לראש הדף">${icon('up')}</button>`;
 }
@@ -25,7 +25,19 @@ export function bindAbc(el) {
   bindList($('.abclist', el));
   const top = $('.totop', el), abc = $('.abc', el), pill = $('.abcpill', abc);
   const btns = [...abc.querySelectorAll('button')], heads = [...el.querySelectorAll('.letter')];
-  let jumped = false, cur = null, raf = 0, held = null, shown = false;
+  let jumped = false, cur = null, raf = 0, held = null, shown = false, fixed = false;
+  // באייפון שורה "דביקה" (sticky) נעלמת לרגע כשהדף קופץ, ושורה מקובעת (fixed, כמו הסרגל התחתון) לא.
+  // לכן כשהשורה מגיעה לראש המסך מקבעים אותה, ומשאירים במקומה רווח (abcgap) באותו גובה כדי שהדף לא יזוז.
+  const mk = $('.abcmark', el), gap = $('.abcgap', el);
+  const pin = on => {
+    if (on) { const r = mk.getBoundingClientRect(); abc.style.left = r.left - 2 + 'px'; abc.style.width = r.width + 4 + 'px'; if (!fixed) gap.style.height = abc.offsetHeight + 'px'; }
+    if (on === fixed) return;
+    fixed = on; abc.classList.toggle('fix', on);
+    if (!on) abc.style.left = abc.style.width = '';
+  };
+  const pinCheck = () => pin(mk.getBoundingClientRect().top <= 0);
+  const resize = () => { if (!top.isConnected) return removeEventListener('resize', resize); if (fixed) pin(true); };
+  addEventListener('resize', resize);
   // מסמנים אות: העיגול הירוק מחליק אליה (כמו האליפסה בסרגל התחתון), והשורה זזה לרוחב (לא הדף) כך שהאות באמצע
   const mark = b => {
     if (b === cur) return;
@@ -58,6 +70,7 @@ export function bindAbc(el) {
   // הכפתור למעלה מופיע אחרי גלילה קצת למטה או קפיצה לאות, ונעלם בראש הדף
   const upd = () => {
     if (!top.isConnected) return removeEventListener('scroll', upd);
+    pinCheck();
     if (scrollY < 40) jumped = false;
     top.classList.toggle('on', jumped || scrollY > 400);
     if (held && held.y === undefined) settle();
@@ -74,10 +87,11 @@ export function bindAbc(el) {
   // גלילה חלקה ולא קפיצה: באייפון קפיצה מיידית מעלימה לרגע את השורה הדביקה
   abc.onclick = e => {
     const b = e.target.closest('[data-l]'); if (!b) return;
+    pin(true);  // מקבעים כבר לפני הגלילה, כדי שהשורה לא תיעלם בדרך
     held = {}; mark(b); settle();
     document.getElementById(lid(b.dataset.l)).scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
-  pick();
+  pinCheck(); pick();
 }
 
 export function render(el) {

@@ -231,6 +231,8 @@ nav a.on{color:var(--green);font-weight:600}
 .allbtn>span{flex:1}.allbtn b{display:block;font:700 19px var(--serif)}.allbtn small{font-size:13px;opacity:.85}
 .allbtn .i{width:26px;height:26px}
 .abc{position:sticky;top:0;z-index:5;isolation:isolate;display:flex;gap:4px;padding:8px 2px;margin:0 -2px 6px;background:var(--bg);overflow-x:auto;scrollbar-width:none}.abc::-webkit-scrollbar{display:none}
+/* כשהשורה בראש המסך היא מקובעת (fixed), כי באייפון sticky נעלם לרגע בקפיצה; abcgap שומר את מקומה */
+.abc.fix{position:fixed;top:0;margin:0}.abcgap{display:none;margin-bottom:6px}.abc.fix+.abcgap{display:block}
 .abc button{position:relative;flex:none;width:34px;height:34px;border:0;border-radius:50%;background:var(--surface);box-shadow:0 2px 6px rgba(40,60,50,.08);font:700 15px var(--serif);color:transparent}
 /* האות מצוירת מעל העיגול הירוק שמחליק בין האותיות, כמו האליפסה בסרגל התחתון */
 .abc button::after{content:attr(data-l);position:absolute;inset:0;z-index:2;display:grid;place-items:center;color:var(--green);transition:color .2s}
