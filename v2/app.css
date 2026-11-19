@@ -231,7 +231,8 @@ nav a.on{color:var(--green);font-weight:600}
 .allbtn>span{flex:1}.allbtn b{display:block;font:700 19px var(--serif)}.allbtn small{font-size:13px;opacity:.85}
 .allbtn .i{width:26px;height:26px}
 .abc{position:sticky;top:0;z-index:5;display:flex;gap:4px;padding:8px 2px;margin:0 -2px 6px;background:var(--bg);overflow-x:auto;scrollbar-width:none}.abc::-webkit-scrollbar{display:none}
-.abc button{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:var(--surface);box-shadow:0 2px 6px rgba(40,60,50,.08);font:700 15px var(--serif);color:var(--green)}
+.abc button{flex:none;width:34px;height:34px;border:0;border-radius:50%;background:var(--surface);box-shadow:0 2px 6px rgba(40,60,50,.08);font:700 15px var(--serif);color:var(--green);transition:background .2s,color .2s,transform .2s}
+.abc button.on{background:var(--green);color:var(--on-green);transform:scale(1.12)}
 .totop{position:fixed;z-index:9;left:max(16px,calc(50% - 264px));bottom:calc(84px + env(safe-area-inset-bottom));width:44px;height:44px;border:0;border-radius:50%;background:var(--surface);color:var(--green);box-shadow:var(--sh);display:grid;place-items:center;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .2s,transform .2s,visibility .2s}
 .totop.on{opacity:1;visibility:visible;transform:none}
 .letter{font:700 22px var(--serif);color:var(--mustard-ink);margin:10px 0 -2px;scroll-margin-top:60px}

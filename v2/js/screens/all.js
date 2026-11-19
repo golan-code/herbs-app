@@ -23,21 +23,47 @@ export function abcList() {
 }
 export function bindAbc(el) {
   bindList($('.abclist', el));
-  const top = $('.totop', el);
-  let jumped = false;
-  // הכפתור מופיע אחרי גלילה קצת למטה או קפיצה לאות, ונעלם בראש הדף
+  const top = $('.totop', el), abc = $('.abc', el);
+  const btns = [...abc.children], heads = [...el.querySelectorAll('.letter')];
+  let jumped = false, cur = null, raf = 0, held = null;
+  // מסמנים אות ומזיזים את השורה (רק לרוחב, לא את הדף) כך שהאות באמצע
+  const mark = b => {
+    if (b === cur) return;
+    cur?.classList.remove('on'); cur = b;
+    if (!b) return abc.scrollTo({ left: 0, behavior: 'smooth' });  // בראש הדף: השורה חוזרת להתחלה
+    b.classList.add('on');
+    const r = b.getBoundingClientRect(), a = abc.getBoundingClientRect();
+    abc.scrollBy({ left: r.left + r.width / 2 - (a.left + a.width / 2), behavior: 'smooth' });
+  };
+  // האות הנוכחית: הכותרת האחרונה שעברה את תחתית השורה; בתחתית הדף — האחרונה
+  const pick = () => {
+    raf = 0;
+    if (held && held.y === scrollY) return;  // אחרי לחיצה: נשארים על האות שנלחצה עד שגוללים
+    held = null;
+    let i = -1;
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = heads.length - 1;
+    else {
+      const line = abc.getBoundingClientRect().bottom + 12;  // 12 = המרווח שמעל הכותרת אחרי קפיצה
+      while (i + 1 < heads.length && heads[i + 1].getBoundingClientRect().top <= line) i++;
+    }
+    mark(btns[i] || null);
+  };
+  // הכפתור למעלה מופיע אחרי גלילה קצת למטה או קפיצה לאות, ונעלם בראש הדף
   const upd = () => {
     if (!top.isConnected) return removeEventListener('scroll', upd);
     if (scrollY < 40) jumped = false;
     top.classList.toggle('on', jumped || scrollY > 400);
+    raf ||= requestAnimationFrame(pick);
   };
   addEventListener('scroll', upd, { passive: true });
   top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
-  $('.abc', el).onclick = e => {
+  abc.onclick = e => {
     const b = e.target.closest('[data-l]'); if (!b) return;
     document.getElementById(lid(b.dataset.l)).scrollIntoView({ block: 'start' });
     jumped = scrollY >= 40; upd();
+    held = { y: scrollY }; mark(b);
   };
+  pick();
 }
 
 export function render(el) {
