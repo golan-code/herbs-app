@@ -1,6 +1,6 @@
-// גישה לאפליקציה: קוד הזמנה אישי (?invite=CODE) שננעל למכשיר הראשון, או כניסת מנהל עם Google (רק דרך admin.html; אין כפתור כניסת מנהל במסכי החסימה).
+// גישה לאפליקציה: קוד הזמנה אישי (?invite=CODE) שננעל למכשיר הראשון, או כניסת מנהל עם Google (מ-admin.html, או מהקישור הקטן "כניסת מנהל" במסכי החסימה).
 // ההגנה האמיתית בכללי האבטחה (firestore.rules); כאן רק הזרימה והמסכים.
-import { auth, db, A, F, ready, isGoogle, signOut, loadContent } from './firebase.js';
+import { auth, db, A, F, ready, isGoogle, signInGoogle, signOut, loadContent } from './firebase.js';
 
 // דרך ליצור קשר שמופיעה במסכי החסימה. whatsapp: מספר בפורמט בינלאומי בלי + (למשל 972501234567)
 export const CONTACT = { whatsapp: '972523321490', email: '' };
@@ -135,11 +135,18 @@ export function renderBlocked(view, err) {
     ${contact}
     ${kind === 'error' || kind === 'slow' ? '<button class="btn gate-btn" data-act="retry">נסה שוב</button>' : ''}
     ${kind === 'notadmin' ? '<button class="btn gate-btn" data-act="out">יציאה מהחשבון</button>' : ''}
+    ${kind === 'notadmin' ? '' : '<button class="gate-admin" data-act="admin">כניסת מנהל</button>'}
   </div>`;
   view.onclick = async e => {
     const b = e.target.closest('[data-act]'), act = b?.dataset.act;
     if (act === 'retry') location.reload();
     if (act === 'out') { await signOut(); location.reload(); }
+    // באייפון, לאייקון במסך הבית יש אחסון משלו: אחרי התקנה מחדש המנהל מתחבר כאן פעם אחת.
+    // מי שאינו המנהל יקבל "החשבון הזה לא מורשה" (ההגנה בכללי האבטחה).
+    if (act === 'admin') {
+      try { await signInGoogle(); location.reload(); }
+      catch (e) { if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') b.textContent = 'הכניסה נכשלה, נסה שוב'; }
+    }
     if (act === 'move') {
       b.disabled = true; b.textContent = 'מעביר…';
       try { await err.move(); location.reload(); }
