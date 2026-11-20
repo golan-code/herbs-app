@@ -2,7 +2,7 @@
 // השיעור נבנה אוטומטית מהנתונים. אפשר לכתוב שיעור אישי לצמח ב-data/lessons.json והוא יחליף את הפתיחה ואת הנקודות לזכירה.
 import { store, herb, learned } from '../store.js';
 import { dailyHerb, similar } from '../search.js';
-import { E, $, icon, thumb } from '../ui.js';
+import { E, $, icon, thumb, pastel, toast } from '../ui.js';
 import { tcmBlocks, tcmTags, pills } from './herb.js';
 
 export const nav = 'lesson';  // מודגש בסרגל התחתון
@@ -89,13 +89,13 @@ export function render(el, r) {
     </div>
     <p class="hint">למדת עד עכשיו <b id="lc">${learned.count()}</b> מתוך ${store.herbs.length} צמחים.</p>
 
-    ${isToday ? `<section><h2>שיעורים מהימים הקודמים</h2><div class="past">${past.map(([d, x]) => `<a href="#/lesson/${x.id}"><small>${fmt(d)}</small><b>${E(x.n)}</b>${learned.has(x.id) ? icon('check') : ''}</a>`).join('')}</div></section>` : ''}
+    ${isToday ? `<section><h2>שיעורים מהימים הקודמים</h2><div class="past">${past.map(([d, x]) => `<a href="#/lesson/${x.id}" style="--tc:${pastel(x.id)}"><small>${fmt(d)}</small><b>${E(x.n)}</b>${learned.has(x.id) ? icon('check') : ''}</a>`).join('')}</div></section>` : ''}
   </article>`;
 
   el.onclick = e => {
     const o = e.target.closest('[data-o]');
     if (o) { const qz = o.closest('.quiz'); if (qz.classList.contains('done')) return; qz.classList.add('done');
       qz.querySelectorAll('[data-o]').forEach(b => b.classList.toggle('right', b.dataset.o === qz.dataset.a)); if (o.dataset.o !== qz.dataset.a) o.classList.add('wrong'); return; }
-    if (e.target.closest('#done')) { learned.add(h.id); $('#done', el).innerHTML = icon('check') + ' נלמד'; $('#lc', el).textContent = learned.count(); }
+    if (e.target.closest('#done')) { if (!learned.has(h.id)) toast('כל הכבוד! עוד צמח שלמדת'); learned.add(h.id); $('#done', el).innerHTML = icon('check') + ' נלמד'; $('#lc', el).textContent = learned.count(); }
   };
 }

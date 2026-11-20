@@ -12,3 +12,14 @@ export const setQuery = q => {
   for (const k in q) if (q[k] === '' || q[k] == null) delete q[k];
   history.replaceState(null, '', enc([r.name, ...r.args.map(encodeURIComponent)].join('/'), q));
 };
+
+// כיוון המעבר בין מסכים, לתנועה: 'back' (חזרה למסך הקודם), 'fwd' (מסך חדש), 'rise' (מעבר בסרגל התחתון),
+// או '' כשאותו מסך נבנה מחדש (למשל אחרי טעינת תמונות) — אז בלי תנועה
+const trail = [];
+export function direction(isTab) {
+  const h = location.hash || '#/';
+  if (trail[trail.length - 1] === h) return '';
+  if (trail[trail.length - 2] === h) { trail.pop(); return 'back'; }
+  if (isTab) { trail.length = 0; trail.push(h); return 'rise'; }
+  trail.push(h); return 'fwd';
+}

@@ -1,12 +1,12 @@
 // גרסת המטמון של v2: להעלות את המספר בכל שינוי בדף, בקוד או בנתונים
-const CACHE = 'herbs2-v34';
+const CACHE = 'herbs2-v35';
 const FILES = ['./', 'index.html', 'app.css', 'manifest.webmanifest',
   'js/app.js', 'js/router.js', 'js/store.js', 'js/search.js', 'js/ui.js',
   'js/screens/home.js', 'js/screens/results.js', 'js/screens/herb.js', 'js/screens/favorites.js',
   'js/screens/tcm.js', 'js/screens/search.js', 'js/screens/filters.js', 'js/screens/lesson.js', 'js/screens/all.js', 'js/commons.js', 'js/screens/badphotos.js',
   'js/firebase.js', 'js/access.js', 'admin.html', 'js/admin.js',
   'data/images.json', 'data/lessons.json',
-  'fonts/heebo-hebrew.woff2', 'fonts/heebo-latin.woff2',
+  'fonts/assistant-hebrew.woff2', 'fonts/assistant-latin.woff2',
   '../fonts/frank-hebrew.woff2', '../fonts/frank-latin.woff2',
   '../icons/icon-192.png', '../icons/icon-512.png', '../icons/icon-maskable-512.png', '../icons/apple-touch-icon.png'];
 

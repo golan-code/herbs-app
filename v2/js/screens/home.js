@@ -1,6 +1,6 @@
 import { store, herb, recent, prefs } from '../store.js';
-import { PARTS } from '../search.js';
-import { E, $, icon, PART_ICON } from '../ui.js';
+import { PARTS, dailyHerb } from '../search.js';
+import { E, $, icon, PART_ICON, thumb, segHtml, setSeg } from '../ui.js';
 import { go } from '../router.js';
 import { abcList, bindAbc } from './all.js';
 import { badList } from '../commons.js';
@@ -24,8 +24,11 @@ export const TABS = [
   ['tcm', 'מבט סיני', "פעולה או דפוס, למשל תקיעות צ'י…"],
 ];
 
-export function tabsHtml(mode) {
-  return `<div class="tabs" role="tablist">${TABS.map(([m, t]) => `<button type="button" role="tab" data-m="${m}" class="${m === mode ? 'on' : ''}">${t}</button>`).join('')}</div>`;
+export const tabsHtml = mode => segHtml(TABS, mode, 'tabs');
+// מעבר לשונית בלי לבנות אותה מחדש (כדי שהאליפסה תגלוש), ועדכון הטקסט בשדה החיפוש
+export function setTabs(el, mode) {
+  setSeg($('.seg', el), mode);
+  const inp = $('.sbar input', el); if (inp) inp.placeholder = (TABS.find(t => t[0] === mode) || TABS[0])[2];
 }
 export function searchBar(mode, q = '') {
   const ph = (TABS.find(t => t[0] === mode) || TABS[0])[2];
@@ -33,19 +36,31 @@ export function searchBar(mode, q = '') {
   <button class="go" aria-label="חיפוש">${icon('go')}</button></form>`;
 }
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 5 ? 'לילה טוב' : h < 12 ? 'בוקר טוב' : h < 17 ? 'צהריים טובים' : h < 21 ? 'ערב טוב' : 'לילה טוב';
+// השם לפנייה: למנהל מחשבון Google; למשתמש ניסיון רק אם access.js מעביר אותו (trial.name).
+// מעדיפים שם בעברית: שם שכבר כתוב בעברית, או תרגום של שם לועזי מוכר (HE_NAMES). אחרת השם כמו שהוא.
+const HE_NAMES = { golan: 'גולן' };
+function firstName() {
+  const n = (isGoogle(auth.currentUser) ? auth.currentUser.displayName : trial.name) || '';
+  const w = n.trim().split(/\s+/), he = w.find(x => /[\u0590-\u05FF]/.test(x));
+  return he || HE_NAMES[(w[0] || '').toLowerCase()] || w[0] || '';
+}
+
+// הצמח היומי: כרטיס ורוד-רך עם תמונה מרחפת
+function dailyCard() {
+  const d = dailyHerb(); if (!d) return '';
+  return `<a class="daily" href="#/lesson"><div><span class="kick">${icon('sun')} הצמח היומי</span><b>${E(d.n)}</b><small dir="ltr">${E(d.latin)}</small>
+    <p>${E(d.main.slice(0, 3).join(', '))}</p><span class="cta-s">לשיעור של היום</span></div>${thumb(d, 'th fl')}</a>`;
 }
 
 export function render(el) {
   let mode = prefs.get('tab', 'name');
   const rec = recent.list().map(herb).filter(Boolean).slice(0, 3);
   el.innerHTML = `
-  <header class="hhead"><div><small>${greeting()}</small><h1>צמחי מרפא</h1>${trialNote()}</div><div class="hside"><span class="pill">${store.herbs.length} צמחים</span>${adminLink()}</div></header>
+  <header class="hhead"><div><h1>שלום${firstName() ? ', ' + E(firstName()) : ''}</h1><p class="hq">איזה צמח נפגוש היום?</p>${trialNote()}</div><div class="hside"><span class="pill">${store.herbs.length} צמחים</span>${adminLink()}</div></header>
   <div id="tabs">${tabsHtml(mode)}</div>
   <div id="sb">${searchBar(mode)}</div>
   <div class="prow">${PARTS.map(p => `<a href="#/results?part=${encodeURIComponent(p)}">${icon(PART_ICON[p])}<span>${E(p)}</span></a>`).join('')}</div>
+  ${dailyCard()}
   ${rec.length ? `<div class="chiprow recent"><small>אחרונים:</small>${rec.map(h => `<a href="#/herb/${h.id}" dir="auto">${E(h.n.trim() || h.latin)}</a>`).join('')}<button type="button" class="rclr">נקה</button></div>` : ''}
   ${badList().length ? `<a class="lesson-l" href="#/badphotos">${icon('warn')} ${badList().length} תמונות סומנו כשגויות · לרשימה</a>` : ''}
   <h2 class="count">כל הצמחים <span class="sub">לפי א-ב</span></h2>
@@ -55,8 +70,7 @@ export function render(el) {
     $('#tabs', el).onclick = e => {
       const b = e.target.closest('[data-m]'); if (!b) return;
       mode = b.dataset.m; prefs.set('tab', mode);
-      const v = $('input', el).value;
-      $('#tabs', el).innerHTML = tabsHtml(mode); $('#sb', el).innerHTML = searchBar(mode, v); bind();
+      setTabs(el, mode);
     };
     $('form', el).onsubmit = e => {
       e.preventDefault(); const v = $('input', el).value.trim();

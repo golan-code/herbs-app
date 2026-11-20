@@ -5,7 +5,7 @@ import { load } from './store.js';
 import { gate, renderBlocked, iosTip } from './access.js';
 import { loadLeadPhotos } from './commons.js';
 import { icon, closeLayers, $ } from './ui.js';
-import { parse, go } from './router.js';
+import { parse, go, direction } from './router.js';
 import * as home from './screens/home.js';
 import * as results from './screens/results.js';
 import * as herb from './screens/herb.js';
@@ -38,8 +38,9 @@ const NAV = [
 const view = $('#view'), nav = $('#nav');
 nav.innerHTML = `<div class="navin"><i class="navpill"></i>${NAV.map(([p, t, i]) => `<a href="#/${p}" data-p="${p}" draggable="false">${icon(i)}<span>${t}</span></a>`).join('')}</div>`;
 const pill = $(".navpill", nav), links = [...nav.querySelectorAll('a')];
-// מזיזים את האליפסה אל כפתור (או למיקום חופשי בזמן גרירה)
-const placePill = (x, w) => { pill.style.width = w + 'px'; pill.style.transform = `translateX(${x}px)`; };
+// מזיזים את האליפסה אל כפתור (או למיקום חופשי בזמן גרירה). רוחב קבוע, ממורכזת מאחורי האייקון
+const PW = 64;
+const placePill = (x, w) => { pill.style.transform = `translateX(${x + (w - PW) / 2}px)`; };
 let pillReady = false;
 const pillTo = a => {
   if (!a) { pill.style.opacity = 0; return; }
@@ -84,7 +85,12 @@ function render() {
   view.innerHTML = '';
   view.className = 'scr scr-' + (r.name || 'home');
   mod.render(view, r);
-  const navKey = mod.nav ?? r.name; currentNav = navKey;
+  // תנועת כניסה: מסכי הסרגל התחתון עולים, מסך חדש גולש משמאל, חזרה גולשת מימין.
+  // הסימון יורד אחרי הכניסה, כדי שרשימות שמתעדכנות תוך כדי הקלדה לא יזוזו.
+  const isTab = !r.args.length && NAV.some(([p]) => p === r.name);
+  const dir = direction(isTab); if (dir) view.classList.add(dir);
+  clearTimeout(render.t); render.t = setTimeout(() => view.classList.remove('rise', 'fwd', 'back'), 1000);
+  const navKey = mod.nav === 'inherit' ? currentNav : (mod.nav ?? r.name); currentNav = navKey;
   links.forEach(a => a.classList.toggle('on', a.dataset.p === navKey));
   requestAnimationFrame(() => pillTo(nav.querySelector('a.on')));
   current = location.hash;

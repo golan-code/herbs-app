@@ -1,5 +1,5 @@
 // רכיבי ממשק משותפים: אייקונים, חלונית תחתונה, בועת תמונה, כרטיס צמח.
-import { favs, photos } from './store.js';
+import { favs, photos, store } from './store.js';
 import { morePhotos, markBad, badList } from './commons.js';
 
 export const E = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;' }[c]));
@@ -35,16 +35,56 @@ export const icon = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" f
 export const PART_ICON = { 'שורש': 'root', 'פקעת': 'tuber', 'עלים': 'leaf', 'פרחים': 'flower', 'פרי וזרעים': 'seed', 'קליפה וגזע': 'bark', 'הצמח כולו / נוף': 'whole', 'פטרייה': 'fungus', 'שרף': 'resin', 'אחר': 'other' };
 export const herbIcon = h => PART_ICON[h.p.split(', ')[0]] || 'leaf';
 
+// צבע פסטל קבוע לכל צמח (לפי המזהה), לרקע של אריחים ותמונות
+const PASTELS = ['#F3E7C2', '#E4E9D8', '#F2DDE7', '#E5E2F1', '#F6D9C2', '#E6EDE0'];
+export const pastel = id => { let x = 0; for (const c of String(id)) x = (x * 31 + c.charCodeAt(0)) >>> 0; return PASTELS[x % PASTELS.length]; };
+
 // תמונה ממוזערת: תמונה אמיתית אם קיימת, אחרת שומר מקום עם אייקון החלק בשימוש
 export function thumb(h, cls = 'th') {
   const ph = photos(h)[0];
-  return `<span class="${cls}">${icon(herbIcon(h))}${ph ? `<img src="${E(ph.src)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}</span>`;
+  return `<span class="${cls}" style="--tc:${pastel(h.id)}">${icon(herbIcon(h))}${ph ? `<img src="${E(ph.src)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}</span>`;
+}
+
+// אריח צמח (ברשימה לפי א-ב): רקע פסטל, תמונה גדולה ולב לבן בפינה. ההחלקה ימינה עדיין פותחת בועה
+export function herbTile(h) {
+  const ph = photos(h)[0], on = favs.has(h.id);
+  return `<div class="rw tile" data-id="${h.id}"><div class="under">${icon('camera')}<span>תמונה</span></div>
+  <a class="res" href="#/herb/${h.id}" draggable="false" style="--tc:${pastel(h.id)}"><span class="tph">${icon(herbIcon(h))}${ph ? `<img src="${E(ph.src)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''}</span>
+  <span><b>${E(h.n || h.latin)}</b><small dir="ltr">${E(h.latin)}</small></span>
+  <button type="button" class="tfav ${on ? 'on' : ''}" aria-label="${on ? 'הסרה מהמועדפים' : 'הוספה למועדפים'}">${icon('heart')}</button></a></div>`;
+}
+
+// לב: מוסיף/מסיר מועדף, קופץ, ומציג הודעה קצרה
+export function toggleFav(btn, h) {
+  const on = favs.toggle(h.id);
+  btn.classList.toggle('on', on);
+  btn.setAttribute('aria-label', on ? 'הסרה מהמועדפים' : 'הוספה למועדפים');
+  btn.classList.remove('pop'); if (on) { btn.offsetWidth; btn.classList.add('pop'); }
+  toast(on ? 'נשמר במועדפים' : 'הוסר מהמועדפים');
+  document.dispatchEvent(new Event('favs'));
+  return on;
+}
+
+// לשוניות עם אליפסה שגולשת: items = [[ערך, תווית, אייקון?]]
+export const segHtml = (items, cur, cls = '') => `<div class="seg ${cls}" role="tablist" style="--n:${items.length};--i:${Math.max(0, items.findIndex(x => x[0] === cur))}"><i class="segpill"></i>${items.map(([v, t, ic]) => `<button type="button" role="tab" data-m="${v}" class="${v === cur ? 'on' : ''}" aria-selected="${v === cur}">${ic ? icon(ic) : ''}<span>${t}</span></button>`).join('')}</div>`;
+export function setSeg(seg, v) {
+  const bs = [...seg.querySelectorAll('[data-m]')];
+  bs.forEach((b, i) => { const on = b.dataset.m === v; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); if (on) seg.style.setProperty('--i', i); });
+}
+
+// הודעה קצרה שעולה מלמטה ונעלמת אחרי 2.4 שניות (במקום alert)
+let toastT = 0;
+export function toast(msg) {
+  let el = document.querySelector('.toast');
+  if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = msg; el.offsetWidth; el.classList.add('in');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('in'), 2400);
 }
 
 export function herbCard(h, { uses, extra = '' } = {}) {
   return `<div class="rw" data-id="${h.id}"><div class="under">${icon('camera')}<span>תמונה</span></div>
   <a class="res" href="#/herb/${h.id}" draggable="false"><div><b>${E(h.n || h.latin)}${extra}</b><small dir="ltr">${E(h.latin)}</small>
-  <p>${E((uses || h.main.slice(0, 3)).join(', '))}</p></div><button type="button" class="thb" aria-label="תמונה של ${E(h.n)}">${thumb(h)}</button></a></div>`;
+  <p>${E((uses || h.main.slice(0, 3)).join(', '))}</p></div><button type="button" class="tfav rfav ${favs.has(h.id) ? 'on' : ''}" aria-label="${favs.has(h.id) ? 'הסרה מהמועדפים' : 'הוספה למועדפים'}">${icon('heart')}</button><button type="button" class="thb" aria-label="תמונה של ${E(h.n)}">${thumb(h)}</button></a></div>`;
 }
 
 // ---- חלונית תחתונה ----
@@ -90,7 +130,7 @@ export function bubble(h, again) {
       if (p) { markBad(h, p.page); bubble(h, true); document.dispatchEvent(new Event('photos')); }
       return;
     }
-    const f = e.target.closest('.fav'); if (f) { f.classList.toggle('on', favs.toggle(h.id)); document.dispatchEvent(new Event('favs')); }
+    const f = e.target.closest('.fav'); if (f) toggleFav(f, h);
   });
 }
 
@@ -126,6 +166,7 @@ export function enableSwipe(root, onOpen) {
   root.addEventListener('click', e => {
     const rw = e.target.closest('.rw'); if (!rw) return;
     if (rw.dataset.swiped) { e.preventDefault(); return; }
+    const tf = e.target.closest('.tfav'); if (tf) { e.preventDefault(); toggleFav(tf, store.byId.get(rw.dataset.id)); return; }
     if (e.target.closest('.thb')) { e.preventDefault(); onOpen(rw.dataset.id); }
   });
 }
