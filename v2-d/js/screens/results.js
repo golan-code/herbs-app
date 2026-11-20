@@ -2,7 +2,7 @@ import { herb, prefs } from '../store.js';
 import { find, matchedUses, similar, emptySel } from '../search.js';
 import { E, $, icon, herbCard, bubble, enableSwipe } from '../ui.js';
 import { setQuery } from '../router.js';
-import { tabsHtml, searchBar } from './home.js';
+import { tabsHtml, searchBar, setTabs } from './home.js';
 
 export const nav = 'search';
 
@@ -55,7 +55,7 @@ export function render(el, r) {
     $('form', el).onsubmit = e => { e.preventDefault(); input().blur(); };
     const tb = $('#tabs', el); if (tb) tb.onclick = e => {
       const b = e.target.closest('[data-m]'); if (!b) return; mode = b.dataset.m; prefs.set('tab', mode);
-      const v = input().value; tb.innerHTML = tabsHtml(mode); $('#sb', el).innerHTML = searchBar(mode, v); bind(); run();
+      setTabs(el, mode); run();
     };
   };
   bind(); run(); bindList(box);

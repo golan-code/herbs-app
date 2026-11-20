@@ -1,6 +1,6 @@
 // כל הצמחים לפי סדר א-ב, עם קפיצה לאות. מוצג גם בתחתית מסך הבית.
 import { store } from '../store.js';
-import { $, icon, herbCard } from '../ui.js';
+import { $, icon, herbTile } from '../ui.js';
 import { bindList } from './results.js';
 
 export const nav = '';
@@ -18,7 +18,7 @@ const lid = l => 'l-' + (l === '#' ? 'x' : l);
 export function abcList() {
   const g = groups();
   return `<div class="abcmark"></div><div class="abc"><i class="abcpill"></i>${[...g.keys()].map(l => `<button type="button" data-l="${l}">${l}</button>`).join('')}</div><div class="abcgap"></div>
-    <div class="list abclist">${[...g].map(([l, hs]) => `<h4 class="letter" id="${lid(l)}">${l}</h4>${hs.map(h => herbCard(h)).join('')}`).join('')}</div>
+    <div class="list abclist">${[...g].map(([l, hs]) => `<h4 class="letter" id="${lid(l)}">${l}</h4>${hs.map(h => herbTile(h)).join('')}`).join('')}</div>
     <button type="button" class="totop" aria-label="חזרה לראש הדף">${icon('up')}</button>`;
 }
 export function bindAbc(el) {

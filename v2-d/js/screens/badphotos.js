@@ -1,6 +1,6 @@
 // רשימת התמונות שסומנו כשגויות, להעתקה ושליחה
 import { badList } from '../commons.js';
-import { E, $, icon } from '../ui.js';
+import { E, $, icon, toast } from '../ui.js';
 export const nav = '';
 export function render(el) {
   const a = badList();
@@ -10,5 +10,5 @@ export function render(el) {
     <button type="button" class="cta" id="cp">העתקת הרשימה</button>
     <ul class="badl">${a.map(x => `<li><b>${E(x.n)}</b> <small dir="ltr">${E(x.lat)}</small></li>`).join('')}</ul>`
     : '<p class="empty">עוד לא סומנו תמונות שגויות. בבועת התמונה יש כפתור "התמונה לא של הצמח הזה".</p>'}`;
-  const b = $('#cp', el); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(text); b.textContent = 'הועתק ✓'; } catch { prompt('העתיקו:', text); } };
+  const b = $('#cp', el); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(text); b.textContent = 'הועתק ✓'; toast('הרשימה הועתקה'); } catch { prompt('העתיקו:', text); } };
 }
