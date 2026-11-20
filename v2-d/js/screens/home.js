@@ -36,10 +36,13 @@ export function searchBar(mode, q = '') {
   <button class="go" aria-label="חיפוש">${icon('go')}</button></form>`;
 }
 
-// השם לפנייה: למנהל מחשבון Google; למשתמש ניסיון רק אם access.js מעביר אותו (trial.name)
+// השם לפנייה: למנהל מחשבון Google; למשתמש ניסיון רק אם access.js מעביר אותו (trial.name).
+// מעדיפים שם בעברית: שם שכבר כתוב בעברית, או תרגום של שם לועזי מוכר (HE_NAMES). אחרת השם כמו שהוא.
+const HE_NAMES = { golan: 'גולן' };
 function firstName() {
   const n = (isGoogle(auth.currentUser) ? auth.currentUser.displayName : trial.name) || '';
-  return n.trim().split(/\s+/)[0] || '';
+  const w = n.trim().split(/\s+/), he = w.find(x => /[\u0590-\u05FF]/.test(x));
+  return he || HE_NAMES[(w[0] || '').toLowerCase()] || w[0] || '';
 }
 
 // הצמח היומי: כרטיס ורוד-רך עם תמונה מרחפת

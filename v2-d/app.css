@@ -353,3 +353,17 @@ body.gated{padding-bottom:0}
   .th.fl{animation:floaty 2.5s ease-in-out infinite alternate}
   .tabbody>*{animation:fade .4s var(--ease) backwards}
 }
+
+/* ===== סבב תיקונים: מסגרת תמונה אחידה ברקע קרם, תמונת צמח נמוכה, לב בכרטיס תוצאה ===== */
+.th,.tph{background:var(--bg);border:1px solid var(--line);padding:4px}
+.th img,.tph img{inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);border-radius:12px}
+.tph img{border-radius:16px}
+.th.lg img,.th.fl img{border-radius:50%}
+.th.fl{background:var(--bg)}
+.tile .tph{background:var(--bg)}
+.hero{background:var(--bg);border:1px solid var(--line);height:200px}
+.hero.has{height:220px}
+.hero img{inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:contain;background:var(--bg);border-radius:18px}
+.panel{min-height:calc(100vh - 230px)}
+.res .rfav{top:6px;left:6px;width:28px;height:28px}
+.res .rfav .i{width:15px;height:15px}

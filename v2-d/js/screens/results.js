@@ -36,7 +36,7 @@ export function render(el, r) {
     return bindList($('.list', el));
   }
 
-  el.innerHTML = `<div class="bar"><a href="#" class="backb" aria-label="חזרה">${icon('back')}</a><h3>תוצאות חיפוש</h3></div>
+  el.innerHTML = `<div class="bar"><a href="#" class="backb" aria-label="חזרה">${icon('back')}</a><h3 id="ttl">תוצאות חיפוש</h3></div>
     ${part ? '' : `<div id="tabs">${tabsHtml(mode)}</div>`}
     <div id="sb">${searchBar(mode, q)}</div>
     <h2 class="count" id="cnt"></h2><div class="list" id="list"></div>`;
@@ -45,6 +45,7 @@ export function render(el, r) {
     const v = input().value;
     const items = find({ q: v, mode, part, sel });
     const t = v.trim();
+    $('#ttl', el).textContent = t ? 'תוצאות חיפוש' : 'כל הצמחים';
     $('#cnt', el).textContent = part && !t ? `${items.length} צמחים · ${part}`
       : mode === 'uses' && t ? `${items.length} צמחים שמשמשים ל${t}` : t ? `${items.length} תוצאות ל"${t}"` : `${items.length} צמחים`;
     box.innerHTML = list(items, { q: mode === 'uses' ? v : null });

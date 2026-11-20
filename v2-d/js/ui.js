@@ -84,7 +84,7 @@ export function toast(msg) {
 export function herbCard(h, { uses, extra = '' } = {}) {
   return `<div class="rw" data-id="${h.id}"><div class="under">${icon('camera')}<span>תמונה</span></div>
   <a class="res" href="#/herb/${h.id}" draggable="false"><div><b>${E(h.n || h.latin)}${extra}</b><small dir="ltr">${E(h.latin)}</small>
-  <p>${E((uses || h.main.slice(0, 3)).join(', '))}</p></div><button type="button" class="thb" aria-label="תמונה של ${E(h.n)}">${thumb(h)}</button></a></div>`;
+  <p>${E((uses || h.main.slice(0, 3)).join(', '))}</p></div><button type="button" class="tfav rfav ${favs.has(h.id) ? 'on' : ''}" aria-label="${favs.has(h.id) ? 'הסרה מהמועדפים' : 'הוספה למועדפים'}">${icon('heart')}</button><button type="button" class="thb" aria-label="תמונה של ${E(h.n)}">${thumb(h)}</button></a></div>`;
 }
 
 // ---- חלונית תחתונה ----

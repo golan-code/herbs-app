@@ -90,7 +90,7 @@ function render() {
   const isTab = !r.args.length && NAV.some(([p]) => p === r.name);
   const dir = direction(isTab); if (dir) view.classList.add(dir);
   clearTimeout(render.t); render.t = setTimeout(() => view.classList.remove('rise', 'fwd', 'back'), 1000);
-  const navKey = mod.nav ?? r.name; currentNav = navKey;
+  const navKey = mod.nav === 'inherit' ? currentNav : (mod.nav ?? r.name); currentNav = navKey;
   links.forEach(a => a.classList.toggle('on', a.dataset.p === navKey));
   requestAnimationFrame(() => pillTo(nav.querySelector('a.on')));
   current = location.hash;

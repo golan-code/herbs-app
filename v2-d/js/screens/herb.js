@@ -1,7 +1,8 @@
 import { herb, favs, recent, photos } from '../store.js';
 import { E, $, icon, bubble, herbIcon, pastel, segHtml, setSeg, toggleFav } from '../ui.js';
 
-export const nav = '';
+// הסרגל התחתון נשאר על הלשונית שממנה הגיעו (בית / חיפוש / מועדפים...)
+export const nav = 'inherit';
 
 const chips = (t, a, cls = '') => a.length ? `<h4>${t}</h4><div class="chips ${cls}">${a.map(x => `<span>${E(x)}</span>`).join('')}</div>` : '';
 export const tcmTags = h => `<div class="tg">${[...h.c.t, ...h.c.m, ...h.c.l].map(v => `<span>${E(v)}</span>`).join('')}${h.c.a.map(v => `<span class="a">${E(v)}</span>`).join('')}</div>`;
