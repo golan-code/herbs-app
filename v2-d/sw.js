@@ -1,6 +1,6 @@
 // גרסת המטמון של v2-d (עיצוב D בבדיקה): להעלות את המספר בכל שינוי. שם נפרד מ-v2 כדי שלא יתנגשו.
 // כשמעבירים את העיצוב ל-v2: להחזיר ל-herbs2-vN ול-'herbs2-v' בניקוי למטה.
-const CACHE = 'herbs-d-v2';
+const CACHE = 'herbs-d-v3';
 const FILES = ['./', 'index.html', 'app.css', 'manifest.webmanifest',
   'js/app.js', 'js/router.js', 'js/store.js', 'js/search.js', 'js/ui.js',
   'js/screens/home.js', 'js/screens/results.js', 'js/screens/herb.js', 'js/screens/favorites.js',

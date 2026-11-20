@@ -14,8 +14,8 @@ const store = {
   clear: () => { try { localStorage.removeItem(KEY); } catch {} },
 };
 
-// מועד סיום הניסיון של המשתמש הנוכחי (null למנהל), להצגה במסך הבית
-export const trial = { ends: null };
+// מועד סיום הניסיון של המשתמש הנוכחי (null למנהל), והשם מהקוד, להצגה במסך הבית
+export const trial = { ends: null, name: '' };
 
 const blocked = (kind, info = {}) => Object.assign(new Error(kind), { blocked: kind, ...info });
 
@@ -95,6 +95,7 @@ export async function gate() {
   }
 
   trial.ends = d.expiresAt.toMillis();
+  trial.name = name || '';
   try { return await loadContent(); }
   catch (e) {
     if (e.code !== 'permission-denied') throw e;
